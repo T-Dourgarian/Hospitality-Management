@@ -6,11 +6,35 @@ const pool = require('../pool')
 
 
 
-router.get('/user', async(req,res) => {
+router.get('/', async(req,res) => {
     try {
 
-        console.log('asdfasdfasdf')
         const queryText = `SELECT * FROM "Users";`;
+        
+        pool.query(queryText)
+            .then(result => {
+                res.send(result.rows);
+            })
+            .catch(error => {
+                console.log(error);
+                res.sendStatus(500);
+            });
+
+
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
+
+
+router.post('/', async(req,res) => {
+    try {
+
+        const { firstName, lastName, userName, password, propertyId } = req.body;
+
+        const queryText = `Insert into properties";`;
         
         pool.query(queryText)
             .then(result => {
