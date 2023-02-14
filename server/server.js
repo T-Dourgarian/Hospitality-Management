@@ -1,18 +1,14 @@
 const express = require('express');
 require('dotenv').config();
-const pool = require('./pool');
-const axios = require('axios')
+// const pool = require('./pool');
+// const axios = require('axios')
 
 const app = express();
 const bodyParser = require('body-parser');
-// const sessionMiddleware = require('./modules/session-middleware');
-
-// const passport = require('./strategies/user.strategy');
 
 // Route includes
 const userRouter = require('./routes/user.router');
-// const smsRouter = require('./routes/sms.router');
-// const cardsRouter = require('./routes/cards.router');
+const reservationRouter = require('./routes/reservation.router')
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -26,8 +22,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(passport.session());
 
 /* Routes */
-app.use('/', userRouter);
-// app.use('/sms', smsRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/reservation', reservationRouter);
 // app.use('/cards', cardsRouter)
 
 // Serve static files

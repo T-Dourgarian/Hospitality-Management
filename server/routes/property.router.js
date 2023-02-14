@@ -29,3 +29,27 @@ router.get('/property', async(req,res) => {
 });
 
 module.exports = router;
+
+
+// router.post('/', async(req,res) => {
+//     try {
+
+//         const { firstName, lastName, userName, password, propertyId } = req.body;
+
+//         const queryText = `Insert into properties";`;
+        
+//         pool.query(queryText)
+//             .then(result => {
+//                 res.send(result.rows);
+//             })
+//             .catch(error => {
+//                 console.log(error);
+//                 res.sendStatus(500);
+//             });
+
+
+//     }catch(error) {
+//         console.log(error)
+//         res.sendStatus(400);
+//     }
+// });
