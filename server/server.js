@@ -1,10 +1,12 @@
 const express = require('express');
 require('dotenv').config();
+let cors = require("cors");
 // const pool = require('./pool');
 // const axios = require('axios')
 
 const app = express();
 const bodyParser = require('body-parser');
+app.use(cors());
 
 // Route includes
 const userRouter = require('./routes/user.router');

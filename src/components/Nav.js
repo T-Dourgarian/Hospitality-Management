@@ -7,22 +7,18 @@ import ListItemButton from '@mui/material/ListItemButton';
 // import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import axios from 'axios';
+import Arrivals from './Arrivals';
+import React, { useState } from 'react';
 
 
-async function getArrivals() {
-    try {
-        let arrivals = [];
-
-        // let response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/arrivals`);
-
-        // arrivals = response.body;
-            console.log('sdf')
-    } catch(error) {
-        console.log(error);
-    }
-}
+// function goToArrivals() {
+    
+// } 
 
 function Nav() {
+
+    const [tab, setTab] = useState('asdf');
+
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
@@ -31,7 +27,7 @@ function Nav() {
                     {['Arrivals'].map((text, index) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton
-                                onClick={() => getArrivals()}
+                                onClick={() => setTab('Arrivals')}
                             >
                                 <ListItemText primary={text} />
                             </ListItemButton>
@@ -40,7 +36,10 @@ function Nav() {
                 </List>
             </Grid>
             <Grid item with="90%">
-
+                    {
+                        tab == 'Arrivals' &&
+                        <Arrivals />
+                    }
             </Grid>
         </Grid>
     </div>
