@@ -6,7 +6,7 @@ const pool = require('../pool')
 
 
 
-router.get('/', async (req,res) => {
+router.get('/arrivals', async (req,res) => {
     try {
 
 
