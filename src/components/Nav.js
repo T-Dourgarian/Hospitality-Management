@@ -5,10 +5,12 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 // import ListItemIcon from '@mui/material/ListItemIcon';
+import Link from '@mui/material/Link';
 import ListItemText from '@mui/material/ListItemText';
 import axios from 'axios';
 import Arrivals from './Arrivals';
 import React, { useState } from 'react';
+import { Outlet, Link as RouterLink } from "react-router-dom";
 
 
 // function goToArrivals() {
@@ -17,29 +19,35 @@ import React, { useState } from 'react';
 
 function Nav() {
 
-    const [tab, setTab] = useState('asdf');
+    const [tabSelected, setTabSelected] = useState('')
 
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
-            <Grid item width="10%">
+            <Grid item width="15%">
                 <List>
-                    {['Arrivals'].map((text, index) => (
-                        <ListItem key={text} disablePadding>
+                    {['arrivals'].map((text, index) => (
+                        <ListItem 
+                            key={index} 
+                            disablePadding 
+                            className="menuItem"
+                        >
                             <ListItemButton
-                                onClick={() => setTab('Arrivals')}
+                                onClick={ () => setTabSelected('Arrivals') }
+                                color="danger"
+                                pl={3}
+                                selected={tabSelected == 'Arrivals'}
+                                component={RouterLink}
+                                to={`/${text}`}
                             >
-                                <ListItemText primary={text} />
+                                { text }
                             </ListItemButton>
                         </ListItem>
                     ))}
                 </List>
             </Grid>
-            <Grid item with="90%">
-                    {
-                        tab == 'Arrivals' &&
-                        <Arrivals />
-                    }
+            <Grid item with="85%">
+                <Outlet />
             </Grid>
         </Grid>
     </div>
