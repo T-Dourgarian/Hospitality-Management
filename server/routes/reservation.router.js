@@ -11,14 +11,27 @@ router.get('/arrivals', async (req,res) => {
 
         var date = new Date();
 
-        const yyyymmdd = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDay();
+        const yyyymmdd = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 
+        // still need to adjust query -> WHERE property.id = X
         const queryText = `
-            SELECT * from reservation
+            SELECT 
+                reservation.*, 
+                public."user".first_name as created_by_first_name, 
+                public."user".last_name as created_by_last_name, 
+                public."user".username as created_by_username, 
+                guest.*,
+                room_type.*,
+                room.number as room_number,
+                room.name as room_name,
+                room_status_type.name as room_status,
+                room_status_type.name_short as room_status_short
+            FROM reservation
             JOIN guest ON reservation.guest_id = guest.id
             JOIN room_type ON reservation.room_type_id = room_type.id
-            JOIN property ON reservation.property_id = property.id
             JOIN public."user" ON reservation.created_by = public."user".id
+            FULL OUTER JOIN room ON reservation.room_id = room.id
+            FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
             WHERE check_in = '${yyyymmdd}';
         `;
 
