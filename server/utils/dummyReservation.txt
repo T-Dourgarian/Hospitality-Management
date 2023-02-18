@@ -1,0 +1,56 @@
+function randomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  }
+
+  function randomIntFromInterval(min, max) { // min and max included 
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
+
+  function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+
+router.get('/post', async (req,res) => {
+    try {
+
+        var date = new Date();
+
+        const yyyymmdd = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+
+
+
+        
+
+        for(let i =1; i <500; i++) {
+            
+            let theRandomDate = randomDate(new Date(), new Date(2023, 1, 27));
+
+            // console.log(theRandomDate)
+            // still need to adjust query -> WHERE property.id = X
+            numberOfDaysToAdd = randomIntFromInterval(1,5)
+
+        const queryText = `
+            INSERT INTO public.reservation(guest_id, check_in, check_out, rate, room_id, property_id, created_by, status, cancelled, notes, room_type_id, num_of_nights)
+            VALUES ('1', '${formatDate(new Date(theRandomDate))}', '${formatDate(new Date(theRandomDate.setDate(theRandomDate.getDate() + numberOfDaysToAdd))) }', ${randomIntFromInterval(1,250) + '.00'}, NULL, 1, 1, 'arriving', false, 'test notes', ${randomIntFromInterval(1,7)}, ${numberOfDaysToAdd});
+        `;
+
+
+            await pool.query(queryText);
+        }
+            
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});

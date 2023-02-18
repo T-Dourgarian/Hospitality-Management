@@ -19,7 +19,7 @@ import { Outlet, Link as RouterLink } from "react-router-dom";
 
 function Nav() {
 
-    const [tabSelected, setTabSelected] = useState('')
+    const [tabSelected, setTabSelected] = useState('');
 
   return (
     <div className="App">

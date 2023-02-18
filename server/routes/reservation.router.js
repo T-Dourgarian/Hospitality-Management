@@ -32,7 +32,7 @@ router.get('/arrivals', async (req,res) => {
             JOIN public."user" ON reservation.created_by = public."user".id
             FULL OUTER JOIN room ON reservation.room_id = room.id
             FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
-            WHERE check_in = '${yyyymmdd}' AND reservation.status = 'arriving';
+            WHERE check_in = '${yyyymmdd}' AND reservation.status = 'arriving'
         `;
 
         
