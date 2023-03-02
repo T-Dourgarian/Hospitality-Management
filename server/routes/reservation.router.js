@@ -17,6 +17,7 @@ router.get('/arrivals', async (req,res) => {
         const queryText = `
             SELECT 
                 reservation.*, 
+                reservation.id as reservation_id,
                 public."user".first_name as created_by_first_name, 
                 public."user".last_name as created_by_last_name, 
                 public."user".username as created_by_username, 

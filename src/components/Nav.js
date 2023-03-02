@@ -6,9 +6,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 // import ListItemIcon from '@mui/material/ListItemIcon';
 import Link from '@mui/material/Link';
-import ListItemText from '@mui/material/ListItemText';
+import { ListItemText, Collapse, ListItemIcon, InboxIcon } from '@mui/material';
 import axios from 'axios';
 import Arrivals from './Arrivals';
+import FrontDesk from './FrontDesk';
 import React, { useState } from 'react';
 import { Outlet, Link as RouterLink } from "react-router-dom";
 
@@ -21,24 +22,27 @@ function Nav() {
 
     const [tabSelected, setTabSelected] = useState('');
 
+    const [open, setOpen] = React.useState(true);
+
+
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
             <Grid item width="15%">
                 <List>
-                    {['arrivals'].map((text, index) => (
+                    {['Front Desk'].map((text, index) => (
                         <ListItem 
                             key={index} 
                             disablePadding 
                             className="menuItem"
                         >
                             <ListItemButton
-                                onClick={ () => setTabSelected('Arrivals') }
+                                onClick={ () => setTabSelected('Front Desk') }
                                 color="danger"
                                 pl={3}
-                                selected={tabSelected == 'Arrivals'}
+                                selected={tabSelected == 'Front Desk'}
                                 component={RouterLink}
-                                to={`/${text}`}
+                                to={`/${text.replaceAll(' ','').toLowerCase()}`}
                             >
                                 { text }
                             </ListItemButton>

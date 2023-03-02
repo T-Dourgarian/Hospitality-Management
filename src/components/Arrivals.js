@@ -33,7 +33,7 @@ function Arrivals() {
     },[])
 
     return (
-        <Grid container direction="column" spacing={2} pt={4}>
+        <Grid container direction="column" spacing={2}>
             <Grid item width="100%">
                 <ReservationTable reservations={arrivals} />
             </Grid>

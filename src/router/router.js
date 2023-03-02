@@ -2,7 +2,7 @@ import {
     createBrowserRouter
 } from "react-router-dom";
 import Nav from '../components/Nav';
-import Arrivals from '../components/Arrivals';
+import FrontDesk from '../components/FrontDesk';
 
 const router = createBrowserRouter([
 {
@@ -10,8 +10,8 @@ const router = createBrowserRouter([
     element: <Nav />,
     children: [
     {
-        path: "arrivals",
-        element: <Arrivals />,
+        path: "frontdesk",
+        element: <FrontDesk />,
     },
     ],
 }

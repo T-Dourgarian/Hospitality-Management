@@ -18,18 +18,36 @@ import ReservationModal from './ReservationModal';
 
 function ReservationTable({ reservations }) {
 
+    const [filteredReservations, setFilteredReservations] = useState(reservations);
+
+    const [lastName, setLastName] = useState('');
+
+    useEffect( () => {
+        setFilteredReservations(
+            reservations.filter( res => res.last_name.toLowerCase().includes(lastName))
+        )
+    }, [lastName])
+
+
+    useEffect(() => {
+        setFilteredReservations(reservations);
+    }, [reservations])
+
 
     return (
         <Grid container direction="column" spacing={2} pt={4}>
             <Grid item width="100%">
                 <TextField 
                     id="standard-basic" 
-                    label="Standard" 
-                    variant="standard" 
+                    size="small"
+                    label="Last Name" 
+                    variant="outlined" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                 />
             </Grid>
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <Table size="small" aria-label="simple table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Last Name</TableCell>
@@ -45,9 +63,9 @@ function ReservationTable({ reservations }) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {reservations && reservations.map( reservation => 
+                        {filteredReservations && filteredReservations.map( reservation => 
                             <TableRow
-                                key={reservation.id}
+                                key={reservation.reservation_id}
                             >
                                 <TableCell component="th" scope="row">
                                     { reservation.last_name }
@@ -68,7 +86,7 @@ function ReservationTable({ reservations }) {
                                     { reservation.room_number ? reservation.room_number : 'N/A' }
                                 </TableCell>
                                 <TableCell component="th" scope="row">
-                                    {reservation.name}
+                                    {reservation.name_short}
                                 </TableCell>
                                 <TableCell component="th" scope="row">
                                     {reservation.status}
