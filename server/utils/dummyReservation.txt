@@ -42,7 +42,7 @@ router.get('/post', async (req,res) => {
 
         const queryText = `
             INSERT INTO public.reservation(guest_id, check_in, check_out, rate, room_id, property_id, created_by, status, cancelled, notes, room_type_id, num_of_nights)
-            VALUES ('1', '${formatDate(new Date(theRandomDate))}', '${formatDate(new Date(theRandomDate.setDate(theRandomDate.getDate() + numberOfDaysToAdd))) }', ${randomIntFromInterval(1,250) + '.00'}, NULL, 1, 1, 'arriving', false, 'test notes', ${randomIntFromInterval(1,7)}, ${numberOfDaysToAdd});
+            VALUES ('1', '${formatDate(new Date(theRandomDate))}', '${formatDate(new Date(theRandomDate.setDate(theRandomDate.getDate() + numberOfDaysToAdd))) }', ${randomIntFromInterval(1,250) + '.00'}, NULL, 1, 1, 'reserved', false, 'test notes', ${randomIntFromInterval(1,7)}, ${numberOfDaysToAdd});
         `;
 
 

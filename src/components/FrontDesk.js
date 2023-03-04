@@ -20,6 +20,8 @@ import {
 } from '@mui/material';
 
 import Arrivals from './Arrivals';
+import Departures from './Departures';
+import InHouse from './InHouse';
 
 function FrontDesk() {
 
@@ -68,21 +70,21 @@ function FrontDesk() {
     return (
         <Grid container direction="column" spacing={2} pt={2}>
             <Grid item width="100%">
-                <Box item sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                    <Tab label="Item One" />
-                    <Tab label="Item Two" />
-                    <Tab label="Item Three"  />
+                    <Tab label="Arrivals" />
+                    <Tab label="In House" />
+                    <Tab label="Departures"  />
                     </Tabs>
                 </Box >
                 <TabPanel value={value} index={0}>
                     <Arrivals />                    
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    Item Two
+                    <InHouse />
                 </TabPanel>
                 <TabPanel value={value} index={2}>
-                    Item Three
+                   <Departures />
                 </TabPanel>
             </Grid>
         </Grid>
