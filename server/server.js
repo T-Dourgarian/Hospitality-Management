@@ -10,7 +10,8 @@ app.use(cors());
 
 // Route includes
 const userRouter = require('./routes/user.router');
-const reservationRouter = require('./routes/reservation.router')
+const reservationRouter = require('./routes/reservation.router');
+const roomRouter = require('./routes/room.router');
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -26,6 +27,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /* Routes */
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/reservation', reservationRouter);
+app.use('/api/v1/room', roomRouter);
 // app.use('/cards', cardsRouter)
 
 // Serve static files

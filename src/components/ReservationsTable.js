@@ -14,7 +14,7 @@ import {
     TextField
 } from '@mui/material';
 
-import ReservationModal from './ReservationModal';
+import ReservationDialog from './ReservationDialog';
 
 function ReservationTable({ reservations }) {
 
@@ -96,7 +96,7 @@ function ReservationTable({ reservations }) {
                                 </TableCell>
                                 <TableCell component="th" scope="row">
 
-                                    <ReservationModal reservation={reservation} buttonText={'open'} />
+                                    <ReservationDialog reservation={reservation} buttonText={'open'} />
                                 </TableCell>
                                 {/* <TableCell align="right">{calories}</TableCell> */}
                             </TableRow>

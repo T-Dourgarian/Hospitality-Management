@@ -72,9 +72,9 @@ function FrontDesk() {
             <Grid item width="100%">
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                    <Tab label="Arrivals" />
-                    <Tab label="In House" />
-                    <Tab label="Departures"  />
+                      <Tab label="Arrivals" />
+                      <Tab label="In House"  />
+                      <Tab label="Departures"  />
                     </Tabs>
                 </Box >
                 <TabPanel value={value} index={0}>
