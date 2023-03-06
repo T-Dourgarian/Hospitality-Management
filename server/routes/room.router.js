@@ -11,13 +11,14 @@ router.get('/all', async(req,res) => {
 
         const queryText = 
         `
-        select 
+        SELECT 
             room.*,
-            room_type.name_short as type_name_short,
-            room_status_type.name_short status_name_short
-        from room
-        LEFT JOIN room_type on room.room_type_id = room_type.id
-        LEFT JOIN room_status_type on room.status_type_id = room_status_type.id        
+            room_type.name_short AS type_name_short,
+            room_status_type.name_short AS status_name_short,
+            room_status_type.name AS status_name
+        FROM room
+        LEFT JOIN room_type ON room.room_type_id = room_type.id
+        LEFT JOIN room_status_type ON room.status_type_id = room_status_type.id        
         `;
         
         pool.query(queryText)

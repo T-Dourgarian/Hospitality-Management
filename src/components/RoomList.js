@@ -38,6 +38,7 @@ function RoomList() {
 
     const [expanded, setExpanded] = React.useState(false);
     const [roomList, setRoomList] = useState([]);
+    const [filteredRoomList, setFilteredRoomList] = useState([])
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
@@ -50,6 +51,7 @@ function RoomList() {
           console.log(response.data);
 
           setRoomList(response.data)
+          setFilteredRoomList(response.data);
         }
 
         getRoomList();
@@ -88,7 +90,41 @@ function RoomList() {
             </Grid>
             <Grid>
               <Collapse in={expanded} timeout="auto" unmountOnExit>
-                  sdf
+                <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                <TableContainer  sx={{ maxHeight: 440 }}>
+                  <Table stickyHeader size="small" aria-label="simple table"  >
+                      <TableHead>
+                          <TableRow>
+                              <TableCell>Room #</TableCell>
+                              <TableCell>Status</TableCell>
+                              {/* <TableCell>Check In</TableCell>
+                              <TableCell>Check Out</TableCell>
+                              <TableCell> # of Nights</TableCell>
+                              <TableCell>Room #</TableCell>
+                              <TableCell>Room Type</TableCell>
+                              <TableCell>Status</TableCell>
+                              <TableCell>Rate</TableCell>
+                              <TableCell></TableCell> */}
+                          </TableRow>
+                      </TableHead>
+                      <TableBody>
+                          {filteredRoomList && filteredRoomList.map( r => 
+                              <TableRow
+                                  key={r.id}
+                              >
+                                  <TableCell component="th" scope="row">
+                                      { r.number }
+                                  </TableCell>
+                                  <TableCell component="th" scope="row">
+                                      { r.status_name }
+                                  </TableCell>
+                                  {/* <TableCell align="right">{calories}</TableCell> */}
+                              </TableRow>
+                          )}
+                      </TableBody>
+                  </Table>
+                </TableContainer>
+                </Paper>
               </Collapse>
             </Grid>
         </Grid>

@@ -13,7 +13,8 @@ import {
     Input,
     InputLabel,
     Card,
-    Collapse
+    Collapse,
+    Divider
 } from '@mui/material';
 
 import RoomList from './RoomList';
@@ -51,8 +52,8 @@ function ReservationDialog({ reservation, buttonText} ) {
               <Grid item>
                 <Grid container direction="column" >
                   <Grid item>
-                    <Grid container spacing={3}>
-                        <Grid item>
+                    <Grid container direction="row" spacing={12}>
+                        <Grid item >
                           <div className='ReservationModalLabel'>
                               Arrival
                           </div>
@@ -93,15 +94,19 @@ function ReservationDialog({ reservation, buttonText} ) {
                           </div>
                       </Grid>
                     </Grid>
+                    <Grid item py={2}>
+                      <Divider />
+                    </Grid>
                     <Grid item>
                       <RoomList />
+                    </Grid>
+                    <Grid item py={2}>
+                      <Divider />
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item>
-                
-              </Grid>
+              
             </Grid>
             
           </DialogContent>
