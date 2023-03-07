@@ -14,7 +14,9 @@ import {
     TextField,
     Collapse ,
     IconButton,
-    Typography
+    Typography,
+    Checkbox,
+    FormControlLabel
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
@@ -25,7 +27,9 @@ import ReservationTable from './ReservationsTable';
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
-})(({ theme, expand }) => ({
+})
+
+(({ theme, expand }) => ({
   transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
@@ -33,16 +37,62 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
+
+const statusCellStyle = (r) => {
+  if (r.status_name == 'Clean') {
+    return {
+      backgroundColor: "green",
+      color: 'white'
+    }
+  } else if (r.status_name == 'Dirty') {
+    return {
+      backgroundColor: "red",
+      color: 'white'
+    }
+  }  else if (r.status_name == 'Turning') {
+    return {
+      backgroundColor: "#C3A923",
+      color: 'white'
+    }
+  } else {
+    return {}
+  }
+}
+
 function RoomList() {
 
 
     const [expanded, setExpanded] = React.useState(false);
     const [roomList, setRoomList] = useState([]);
     const [filteredRoomList, setFilteredRoomList] = useState([])
+    const [showVacant, setShowVacant] = useState(true);
+    const [showOccupied, setShowOccupied] = useState(false);
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
     };
+
+    const handleVacantToggle = () => {
+      setShowVacant(!showVacant);
+    }
+
+    const handleOccupiedToggle = () => {
+      setShowOccupied(!showOccupied);
+    }
+
+    useEffect(() => {
+      setFilteredRoomList(
+        roomList.filter(room => {
+          if (showVacant && showOccupied) {
+            return true
+          } else if (showVacant) {
+            return room.vacant
+          } else if ( showOccupied) {
+            return !room.vacant
+          }
+        })
+      )
+    }, [showVacant, showOccupied])
 
     useEffect(() => {
         const getRoomList = async () => {
@@ -90,21 +140,41 @@ function RoomList() {
             </Grid>
             <Grid>
               <Collapse in={expanded} timeout="auto" unmountOnExit>
+
+                <Grid container direction="column">
+                  <Grid item >
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                        size="small"
+                          checked={showVacant}
+                          onChange={handleVacantToggle}
+                        />
+                      }
+                      label="Vacant"/>
+                  </Grid>
+                  <Grid item>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                        size="small"
+                          checked={showOccupied}
+                          onChange={handleOccupiedToggle}
+                        />
+                      }
+                      label="Occupied"/>
+                  </Grid>
+                </Grid>
+
                 <Paper sx={{ width: '100%', overflow: 'hidden' }}>
                 <TableContainer  sx={{ maxHeight: 440 }}>
                   <Table stickyHeader size="small" aria-label="simple table"  >
                       <TableHead>
                           <TableRow>
                               <TableCell>Room #</TableCell>
-                              <TableCell>Status</TableCell>
-                              {/* <TableCell>Check In</TableCell>
-                              <TableCell>Check Out</TableCell>
-                              <TableCell> # of Nights</TableCell>
-                              <TableCell>Room #</TableCell>
                               <TableCell>Room Type</TableCell>
+                              <TableCell>VAC / OCC</TableCell>
                               <TableCell>Status</TableCell>
-                              <TableCell>Rate</TableCell>
-                              <TableCell></TableCell> */}
                           </TableRow>
                       </TableHead>
                       <TableBody>
@@ -113,12 +183,21 @@ function RoomList() {
                                   key={r.id}
                               >
                                   <TableCell component="th" scope="row">
-                                      { r.number }
+                                    { r.number }
                                   </TableCell>
                                   <TableCell component="th" scope="row">
-                                      { r.status_name }
+                                    { r.type_name_short }
                                   </TableCell>
-                                  {/* <TableCell align="right">{calories}</TableCell> */}
+                                  <TableCell >
+                                    { r.vacant ? 'VAC' : 'OCC'}
+                                  </TableCell>
+                                  <TableCell 
+                                    component="th" 
+                                    scope="row"
+                                    sx={statusCellStyle(r)}
+                                  >
+                                    { r.status_name }
+                                  </TableCell>
                               </TableRow>
                           )}
                       </TableBody>
