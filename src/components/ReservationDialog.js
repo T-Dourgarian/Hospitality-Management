@@ -98,7 +98,7 @@ function ReservationDialog({ reservation, buttonText} ) {
                       <Divider />
                     </Grid>
                     <Grid item>
-                      <RoomList />
+                      <RoomList reservation={reservation}/>
                     </Grid>
                     <Grid item py={2}>
                       <Divider />

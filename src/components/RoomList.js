@@ -16,7 +16,14 @@ import {
     IconButton,
     Typography,
     Checkbox,
-    FormControlLabel
+    FormControlLabel,
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Box
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
@@ -59,14 +66,37 @@ const statusCellStyle = (r) => {
   }
 }
 
-function RoomList() {
+function RoomList({ reservation }) {
 
 
-    const [expanded, setExpanded] = React.useState(false);
+    const [expanded, setExpanded] = useState(false);
     const [roomList, setRoomList] = useState([]);
     const [filteredRoomList, setFilteredRoomList] = useState([])
     const [showVacant, setShowVacant] = useState(true);
     const [showOccupied, setShowOccupied] = useState(false);
+    const [showClean, setShowClean] = useState(true);
+    const [showDirty, setShowDirty] = useState(false);
+    const [showTurning, setShowTurning] = useState(false);
+    const [roomToAssign, setRoomToAssign] = useState({})
+    const [confirmDirtyAssign, setConfirmDirtyAssign] = useState(false);
+    const [roomTypes, setRoomTypes] = useState([]);
+    const [roomTypeChecks, setRoomTypeChecks] = useState([reservation.name_short])
+
+    const [assignDialog, setAssignDialog] = useState(false);
+
+    const handleAssignOpen = (room) => {
+      setRoomToAssign(room);
+      setAssignDialog(true);
+    };
+  
+    const handleAssignClose = () => {
+      setConfirmDirtyAssign(false);
+      setAssignDialog(false);
+    };
+
+    const handleCheckDirtyAssign = () => {
+      setConfirmDirtyAssign(!confirmDirtyAssign)
+    }
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
@@ -80,22 +110,62 @@ function RoomList() {
       setShowOccupied(!showOccupied);
     }
 
-    useEffect(() => {
-      setFilteredRoomList(
-        roomList.filter(room => {
-          if (showVacant && showOccupied) {
-            return true
-          } else if (showVacant) {
-            return room.vacant
-          } else if ( showOccupied) {
-            return !room.vacant
-          }
-        })
-      )
-    }, [showVacant, showOccupied])
+    const handleRoomStatusFilter = (key) => {
+      if (key === 'clean') {
+        setShowClean(!showClean);
+      } else if (key === 'dirty') { 
+        setShowDirty(!showDirty);
+      } else if (key === 'turning') {
+        setShowTurning(!showTurning)
+      }
+    }
+
+    // finish this
+    const handleAssignRoom = () => {
+
+    }
+    
+
+    const handleRoomTypeCheck = (roomType) => {
+      if (roomTypeChecks.includes(roomType)) {
+        setRoomTypeChecks(
+          roomTypeChecks.filter(rt => {
+            return !(rt === roomType)
+          })
+        )
+      } else {
+        setRoomTypeChecks(
+          [...roomTypeChecks, roomType]
+        )
+      }
+    }
 
     useEffect(() => {
+      const getRoomList = async () => {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
+        setRoomList(response.data)
+        setFilteredRoomList(response.data.filter(room => {
+          return room.status_name == 'Clean' && room.vacant
+        }));
 
+      }
+
+      const getRoomTypeList = async () => {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/roomType`);
+
+        setRoomTypes(response.data);
+        
+
+      }
+      
+      getRoomList();
+      getRoomTypeList();
+
+    },[])
+    
+
+
+    useEffect(() => {
       let statusFilter = [];
 
       if (showClean) statusFilter.push('Clean')
@@ -121,23 +191,13 @@ function RoomList() {
       })
 
 
+      newRoomList = newRoomList.filter(room => {
+        return roomTypeChecks.includes(room.room_type)
+      })
+
       setFilteredRoomList(newRoomList);
+    }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks)])
 
-    }, [showClean, showDirty, showTurning, showVacant, showOccupied])
-
-    useEffect(() => {
-        const getRoomList = async () => {
-          const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
-
-          console.log(response.data);
-
-          setRoomList(response.data)
-          setFilteredRoomList(response.data);
-        }
-
-        getRoomList();
-
-    },[])
 
     return (
         <Grid container direction="column" >
@@ -172,29 +232,98 @@ function RoomList() {
             <Grid>
               <Collapse in={expanded} timeout="auto" unmountOnExit>
 
-                <Grid container direction="column">
-                  <Grid item >
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                        size="small"
-                          checked={showVacant}
-                          onChange={handleVacantToggle}
-                        />
-                      }
-                      label="Vacant"/>
-                  </Grid>
+                <Grid container direction="row">
                   <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                        size="small"
-                          checked={showOccupied}
-                          onChange={handleOccupiedToggle}
-                        />
-                      }
-                      label="Occupied"/>
+                    <Grid container direction="column">
+                      <Grid item >
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                            size="small"
+                              checked={showVacant}
+                              onChange={handleVacantToggle}
+                            />
+                          }
+                          label="Vacant"/>
+                      </Grid>
+                      <Grid item>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                            size="small"
+                              checked={showOccupied}
+                              onChange={handleOccupiedToggle}
+                            />
+                          }
+                          label="Occupied"/>
+                      </Grid>
+                    </Grid>
                   </Grid>
+
+                  
+                  <Divider orientation="vertical" flexItem/>
+
+                  <Grid item pl={2}>
+                      <Grid container direction="column">
+                        <Grid item >
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                size="small"
+                                checked={showClean}
+                                onChange={() => handleRoomStatusFilter('clean')}
+                              />
+                            }
+                            label="Clean"/>
+                        </Grid>
+                        <Grid item>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                size="small"
+                                checked={showDirty}
+                                onChange={() => handleRoomStatusFilter('dirty')}
+                              />
+                            }
+                            label="Dirty"/>
+                        </Grid>
+                        <Grid item >
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                size="small"
+                                checked={showTurning}
+                                onChange={() => handleRoomStatusFilter('turning')}
+                              />
+                            }
+                            label="Turning"/>
+                        </Grid>
+                      </Grid>
+                  </Grid>
+                  
+                  <Divider orientation="vertical" flexItem/>
+
+                  <Grid item pl={2}>
+                    <Grid container direction="row" maxWidth={500}>
+                      {
+                        roomTypes[0] && roomTypes.map(roomType => 
+                          <Grid item key={roomType.id}>
+                            <FormControlLabel
+                              // sx={{fontSize: '12px'}}
+                              control={
+                                <Checkbox 
+                                  size="small"
+                                  checked={roomTypeChecks.includes(roomType.name_short)}
+                                  onChange={() => handleRoomTypeCheck(roomType.name_short)}
+                                />
+                              }
+                              label={roomType.name_short}/>
+                          </Grid>
+                        )
+                      }
+                    </Grid>
+                  </Grid>
+
                 </Grid>
 
                 <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -202,6 +331,7 @@ function RoomList() {
                   <Table stickyHeader size="small" aria-label="simple table"  >
                       <TableHead>
                           <TableRow>
+                              <TableCell>Assign</TableCell>
                               <TableCell>Room #</TableCell>
                               <TableCell>Room Type</TableCell>
                               <TableCell>VAC / OCC</TableCell>
@@ -213,11 +343,23 @@ function RoomList() {
                               <TableRow
                                   key={r.id}
                               >
+                                  <TableCell 
+                                    component="th" 
+                                    scope="row"
+                                    sx={statusCellStyle(r)}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      disabled={!r.vacant}
+                                      size="small"
+                                      onClick={() => handleAssignOpen(r)}
+                                    >Assign</Button>
+                                  </TableCell>
                                   <TableCell component="th" scope="row">
                                     { r.number }
                                   </TableCell>
                                   <TableCell component="th" scope="row">
-                                    { r.type_name_short }
+                                    { r.room_type }
                                   </TableCell>
                                   <TableCell >
                                     { r.vacant ? 'VAC' : 'OCC'}
@@ -225,7 +367,6 @@ function RoomList() {
                                   <TableCell 
                                     component="th" 
                                     scope="row"
-                                    sx={statusCellStyle(r)}
                                   >
                                     { r.status_name }
                                   </TableCell>
@@ -237,6 +378,50 @@ function RoomList() {
                 </Paper>
               </Collapse>
             </Grid>
+
+            <Dialog
+              open={assignDialog}
+              onClose={handleAssignClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+              Assign guest { reservation.last_name}, {reservation.first_name} to room {roomToAssign.number}?
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Room {roomToAssign.number} has a status of {roomToAssign.status_name}
+
+                  
+                    {
+                      roomToAssign.status_name === 'Dirty' &&
+                      <Box>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              size="small"
+                              checked={confirmDirtyAssign}
+                              onChange={() => handleCheckDirtyAssign()}
+                            />
+                          }
+                          label="ASSIGN GUEST TO DIRTY ROOM"/>
+                      </Box>
+                    }
+
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleAssignClose}>Back</Button>
+                <Button 
+                    onClick={handleAssignRoom} 
+                    variant="contained"
+                    disabled={ roomToAssign.status_name === 'Dirty' && !confirmDirtyAssign}
+                >
+                  Assign
+                </Button>
+              </DialogActions>
+            </Dialog>
+
         </Grid>
     );
   }

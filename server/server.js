@@ -12,6 +12,7 @@ app.use(cors());
 const userRouter = require('./routes/user.router');
 const reservationRouter = require('./routes/reservation.router');
 const roomRouter = require('./routes/room.router');
+const roomTypeRouter= require('./routes/roomType.router');
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -28,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/reservation', reservationRouter);
 app.use('/api/v1/room', roomRouter);
+app.use('/api/v1/roomType', roomTypeRouter);
 // app.use('/cards', cardsRouter)
 
 // Serve static files
