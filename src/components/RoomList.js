@@ -95,6 +95,37 @@ function RoomList() {
     }, [showVacant, showOccupied])
 
     useEffect(() => {
+
+      let statusFilter = [];
+
+      if (showClean) statusFilter.push('Clean')
+      if (showDirty) statusFilter.push('Dirty')
+      if (showTurning) statusFilter.push('Turning')
+
+      let newRoomList = filteredRoomList;
+
+      // room status filtering
+      newRoomList = roomList.filter(room => {
+        return statusFilter.includes(room.status_name);
+      })
+
+      // vacant/occupied filtering
+      newRoomList = newRoomList.filter(room => {
+        if (showVacant && showOccupied) {
+          return true;
+        } else if (showVacant) {
+          return room.vacant;
+        } else if ( showOccupied) {
+          return !room.vacant;
+        }
+      })
+
+
+      setFilteredRoomList(newRoomList);
+
+    }, [showClean, showDirty, showTurning, showVacant, showOccupied])
+
+    useEffect(() => {
         const getRoomList = async () => {
           const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
 
