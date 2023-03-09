@@ -23,7 +23,8 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    Box
+    Box,
+    Alert
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled } from '@mui/material/styles';
@@ -81,6 +82,7 @@ function RoomList({ reservation }) {
     const [confirmDirtyAssign, setConfirmDirtyAssign] = useState(false);
     const [roomTypes, setRoomTypes] = useState([]);
     const [roomTypeChecks, setRoomTypeChecks] = useState([reservation.name_short])
+    const [confirmRoomTypeSwitch, setConfirmRoomTypeSwitch] = useState(false);
 
     const [assignDialog, setAssignDialog] = useState(false);
 
@@ -91,6 +93,7 @@ function RoomList({ reservation }) {
   
     const handleAssignClose = () => {
       setConfirmDirtyAssign(false);
+      setConfirmRoomTypeSwitch(false);
       setAssignDialog(false);
     };
 
@@ -120,9 +123,36 @@ function RoomList({ reservation }) {
       }
     }
 
-    // finish this
-    const handleAssignRoom = () => {
+    const handleCheckRoomTypeSwitch = () => {
+      setConfirmRoomTypeSwitch(!confirmRoomTypeSwitch);
+    }
 
+    const assignDisabled = () => {
+
+      if (roomToAssign.status_name === 'Dirty' && !confirmDirtyAssign) return true;
+
+      if (roomToAssign.room_type != reservation.name_short && !confirmRoomTypeSwitch) return true;
+
+      return false;
+    }
+
+    // finish this
+    const handleAssignRoom = async () => {
+      try {
+
+        await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/room/assign`,
+          {
+            room_id: roomToAssign.id,
+            reservation_id: reservation.reservation_id
+          }
+        );
+
+        setAssignDialog(false);
+
+
+      } catch(error) {
+        console.log(error);
+      }
     }
     
 
@@ -389,7 +419,7 @@ function RoomList({ reservation }) {
               Assign guest { reservation.last_name}, {reservation.first_name} to room {roomToAssign.number}?
               </DialogTitle>
               <DialogContent>
-                <DialogContentText id="alert-dialog-description">
+                
                   Room {roomToAssign.number} has a status of {roomToAssign.status_name}
 
                   
@@ -408,14 +438,30 @@ function RoomList({ reservation }) {
                       </Box>
                     }
 
-                </DialogContentText>
+
+                    {
+                      roomToAssign.room_type != reservation.name_short &&
+                      <Box>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              size="small"
+                              checked={confirmRoomTypeSwitch}
+                              onChange={() => handleCheckRoomTypeSwitch()}
+                            />
+                          }
+                          label={`Confirm change in room type, ${reservation.name_short} => ${roomToAssign.room_type}`} />
+                      </Box>
+
+                    }
+                
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleAssignClose}>Back</Button>
                 <Button 
-                    onClick={handleAssignRoom} 
                     variant="contained"
-                    disabled={ roomToAssign.status_name === 'Dirty' && !confirmDirtyAssign}
+                    onClick={handleAssignRoom} 
+                    disabled={assignDisabled()}
                 >
                   Assign
                 </Button>

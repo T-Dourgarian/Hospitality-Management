@@ -43,27 +43,29 @@ router.get('/all', async(req,res) => {
 router.post('/assign', async(req,res) => {
     try {
 
+        const { room_id, reservation_id } = req.body;
 
         const client = await pool.connect();
 
 
-        await client.query('BEGIN')
+        await client.query('BEGIN;')
 
-        const queryText = 
-        `
-            UPDATE reservation
-            set 
-        `;
+        await client.query(
+        `   UPDATE reservation
+            SET room_id = $1
+            WHERE reservation.id = $2;
+        `,[room_id, reservation_id])
+
+
+        await client.query(
+        `   UPDATE room
+            SET reservation_id = $1
+            WHERE room.id = $2;
+        `,[reservation_id, room_id])
         
-        pool.query(queryText)
-            .then(result => {
-                res.send(result.rows);
-            })
-            .catch(error => {
-                console.log(error);
-                res.sendStatus(500);
-            });
+        await client.query('COMMIT;')
 
+        res.sendStatus(200);
 
     }catch(error) {
         console.log(error)
