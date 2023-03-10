@@ -69,7 +69,7 @@ const statusCellStyle = (r) => {
   }
 }
 
-function RoomList({ reservation }) {
+function RoomList({ reservation, getArrivals }) {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -153,11 +153,15 @@ function RoomList({ reservation }) {
           {
             room_id: roomToAssign.id,
             room_type_id: roomToAssign.room_type_id,
-            reservation_id: reservation.reservation_id
+            reservation_id: reservation.reservation_id,
+            guest_id: reservation.guest_id
           }
         );
 
         setAssignDialog(false);
+
+        getRoomList();
+        getArrivals();
 
 
       } catch(error) {
@@ -180,21 +184,23 @@ function RoomList({ reservation }) {
       }
     }
 
+
+    const getRoomList = async () => {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
+      setRoomList(response.data)
+      setFilteredRoomList(response.data.filter(room => {
+        return room.status_name === 'Clean' && room.vacant && room.room_type_id === reservation.room_type_id
+      }));
+
+    }
+
+    const getRoomTypeList = async () => {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/roomType`);
+
+      setRoomTypes(response.data);
+    }
+
     useEffect(() => {
-      const getRoomList = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
-        setRoomList(response.data)
-        setFilteredRoomList(response.data.filter(room => {
-          return room.status_name === 'Clean' && room.vacant && room.room_type_id === reservation.room_type_id
-        }));
-
-      }
-
-      const getRoomTypeList = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/roomType`);
-
-        setRoomTypes(response.data);
-      }
       
       getRoomList();
       getRoomTypeList();

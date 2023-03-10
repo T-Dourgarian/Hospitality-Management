@@ -20,13 +20,13 @@ function Arrivals() {
 
     const [arrivals, setArrivals] = useState([]);
 
+    const getArrivals = async () => {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/arrivals`);
+
+        setArrivals(response.data)
+    }
 
     useEffect(() => {
-        const getArrivals = async () => {
-          const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/arrivals`);
-
-          setArrivals(response.data)
-        }
 
         getArrivals();
 
@@ -35,7 +35,7 @@ function Arrivals() {
     return (
         <Grid container direction="column" spacing={2}>
             <Grid item width="100%">
-                <ReservationTable reservations={arrivals} />
+                <ReservationTable reservations={arrivals} getArrivals={getArrivals} />
             </Grid>
         </Grid>
     );

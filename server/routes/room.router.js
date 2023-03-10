@@ -77,6 +77,21 @@ router.post('/assign', async(req,res) => {
 
 
         const reservation = await client.query( //  assigning the room to new reservation
+        `   Select * FROM reservation
+            WHERE id = $1;
+        `,[reservation_id]);
+
+        if (reservation.rows[0].room_id) { // unassign old room if there was a room already assigned
+            await client.query( 
+            `   UPDATE ROOM
+                SET reservation_id = NULL,
+                    guest_id = NULL
+                WHERE id = $1
+            `,[reservation.rows[0].room_id]);
+        };
+
+
+        await client.query( //  assigning room to reservation record
         `   UPDATE reservation
             SET room_id = $1,
                 room_type_id = $2
@@ -84,10 +99,10 @@ router.post('/assign', async(req,res) => {
             RETURNING guest_id;
         `,[room_id, room_type_id, reservation_id])
    
-        await client.query( // assigning reservation and guest to the room 
+        await client.query( // assigning reservation and guest to the room record
         `   UPDATE room
             SET reservation_id = $1,
-            guest_id = $2
+                guest_id = $2
             WHERE room.id = $3;
         `,[reservation_id, reservation.rows[0].guest_id, room_id])
         
