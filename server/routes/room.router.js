@@ -67,7 +67,7 @@ router.post('/assign', async(req,res) => {
 
             console.log('room', room)
 
-        if (room.rows[0].reservation_id) { // remove previously assigned reservation from the room so I can assign the new reservation to the room
+        if (room.rows[0].reservation_id) { // remove previously assigned room from reservation so I can assign the room to the new reservation
             await client.query(
             `   UPDATE reservation
                 SET room_id = NULL
@@ -76,10 +76,10 @@ router.post('/assign', async(req,res) => {
         }
 
 
-        const reservation = await client.query( //  assigning a room to new reservation
+        const reservation = await client.query( //  assigning the room to new reservation
         `   UPDATE reservation
             SET room_id = $1,
-            room_type_id = $2
+                room_type_id = $2
             WHERE reservation.id = $3
             RETURNING guest_id;
         `,[room_id, room_type_id, reservation_id])
