@@ -24,9 +24,11 @@ import {
     DialogContentText,
     DialogActions,
     Box,
-    Alert
+    Alert,
+    Tooltip 
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PersonIcon from '@mui/icons-material/Person';
 import { styled } from '@mui/material/styles';
 
 import ReservationTable from './ReservationsTable';
@@ -83,7 +85,7 @@ function RoomList({ reservation }) {
     const [roomTypes, setRoomTypes] = useState([]);
     const [roomTypeChecks, setRoomTypeChecks] = useState([reservation.name_short])
     const [confirmRoomTypeSwitch, setConfirmRoomTypeSwitch] = useState(false);
-
+    const [confirmReAssignRoom, setConfirmReAssignRoom] = useState(false);
     const [assignDialog, setAssignDialog] = useState(false);
 
     const handleAssignOpen = (room) => {
@@ -127,11 +129,17 @@ function RoomList({ reservation }) {
       setConfirmRoomTypeSwitch(!confirmRoomTypeSwitch);
     }
 
+    const handleCheckReAssignRoom = () => {
+      setConfirmReAssignRoom(!confirmReAssignRoom);
+    }
+
     const assignDisabled = () => {
 
       if (roomToAssign.status_name === 'Dirty' && !confirmDirtyAssign) return true;
 
       if (roomToAssign.room_type != reservation.name_short && !confirmRoomTypeSwitch) return true;
+
+      if (roomToAssign.guest_id != null && !confirmReAssignRoom) return true;
 
       return false;
     }
@@ -140,9 +148,11 @@ function RoomList({ reservation }) {
     const handleAssignRoom = async () => {
       try {
 
+
         await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/room/assign`,
           {
             room_id: roomToAssign.id,
+            room_type_id: roomToAssign.room_type_id,
             reservation_id: reservation.reservation_id
           }
         );
@@ -175,7 +185,7 @@ function RoomList({ reservation }) {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
         setRoomList(response.data)
         setFilteredRoomList(response.data.filter(room => {
-          return room.status_name == 'Clean' && room.vacant
+          return room.status_name === 'Clean' && room.vacant && room.room_type_id === reservation.room_type_id
         }));
 
       }
@@ -184,8 +194,6 @@ function RoomList({ reservation }) {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/roomType`);
 
         setRoomTypes(response.data);
-        
-
       }
       
       getRoomList();
@@ -378,12 +386,31 @@ function RoomList({ reservation }) {
                                     scope="row"
                                     sx={statusCellStyle(r)}
                                   >
-                                    <Button
-                                      variant="contained"
-                                      disabled={!r.vacant}
-                                      size="small"
-                                      onClick={() => handleAssignOpen(r)}
-                                    >Assign</Button>
+                                    <Grid container direction="row" justifyContent={'space-between'}>
+                                      <Grid item>
+                                        <Button
+                                          variant="contained"
+                                          disabled={!r.vacant}
+                                          size="small"
+                                          onClick={() => handleAssignOpen(r)}
+                                        >Assign</Button>
+
+                                      </Grid>
+                                      <Grid 
+                                        item
+                                      >
+                                        {
+                                          r.guest_id && 
+                                          <Tooltip 
+                                            title={`${r.last_name}, ${r.first_name} ${r.dnm ? r.dnm : ''}`}
+                                            placement="top"
+                                          >
+                                            <PersonIcon />
+                                          </Tooltip> 
+                                        }
+                                      </Grid>
+                                    </Grid>
+
                                   </TableCell>
                                   <TableCell component="th" scope="row">
                                     { r.number }
@@ -451,6 +478,22 @@ function RoomList({ reservation }) {
                             />
                           }
                           label={`Confirm change in room type, ${reservation.name_short} => ${roomToAssign.room_type}`} />
+                      </Box>
+
+                    }
+
+                    {
+                      roomToAssign.guest_id &&
+                      <Box>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              size="small"
+                              checked={confirmReAssignRoom}
+                              onChange={() => handleCheckReAssignRoom()}
+                            />
+                          }
+                          label={`Reassign room #${roomToAssign.number} from ${roomToAssign.last_name}, ${roomToAssign.first_name} to ${reservation.last_name}, ${reservation.first_name}? `} />
                       </Box>
 
                     }

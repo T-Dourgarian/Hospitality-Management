@@ -17,6 +17,8 @@ import {
     Divider
 } from '@mui/material';
 
+import PersonIcon from '@mui/icons-material/Person';
+
 import RoomList from './RoomList';
 
 function ReservationDialog({ reservation, buttonText} ) {
@@ -42,7 +44,7 @@ function ReservationDialog({ reservation, buttonText} ) {
         <Button variant="outlined" onClick={handleClickOpen}>
           {buttonText}
         </Button>
-        <Dialog open={open} fullScreen>
+        <Dialog open={open} keepMounted fullScreen>
           <DialogTitle> {reservation.last_name}, {reservation.first_name} </DialogTitle>
           <DialogContent>
             {/* <Grid container direction="row" >
