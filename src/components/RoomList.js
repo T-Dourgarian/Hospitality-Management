@@ -69,11 +69,10 @@ const statusCellStyle = (r) => {
   }
 }
 
-function RoomList({ reservation, getArrivals }) {
+function RoomList({ reservation, getReservations, roomList, getRoomList, roomTypes }) {
 
 
     const [expanded, setExpanded] = useState(false);
-    const [roomList, setRoomList] = useState([]);
     const [filteredRoomList, setFilteredRoomList] = useState([])
     const [showVacant, setShowVacant] = useState(true);
     const [showOccupied, setShowOccupied] = useState(false);
@@ -82,7 +81,6 @@ function RoomList({ reservation, getArrivals }) {
     const [showTurning, setShowTurning] = useState(false);
     const [roomToAssign, setRoomToAssign] = useState({})
     const [confirmDirtyAssign, setConfirmDirtyAssign] = useState(false);
-    const [roomTypes, setRoomTypes] = useState([]);
     const [roomTypeChecks, setRoomTypeChecks] = useState([reservation.name_short])
     const [confirmRoomTypeSwitch, setConfirmRoomTypeSwitch] = useState(false);
     const [confirmReAssignRoom, setConfirmReAssignRoom] = useState(false);
@@ -161,7 +159,7 @@ function RoomList({ reservation, getArrivals }) {
         setAssignDialog(false);
 
         getRoomList();
-        getArrivals();
+        getReservations();
 
 
       } catch(error) {
@@ -183,29 +181,6 @@ function RoomList({ reservation, getArrivals }) {
         )
       }
     }
-
-
-    const getRoomList = async () => {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
-      setRoomList(response.data)
-      setFilteredRoomList(response.data.filter(room => {
-        return room.status_name === 'Clean' && room.vacant && room.room_type_id === reservation.room_type_id
-      }));
-
-    }
-
-    const getRoomTypeList = async () => {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/roomType`);
-
-      setRoomTypes(response.data);
-    }
-
-    useEffect(() => {
-      
-      getRoomList();
-      getRoomTypeList();
-
-    },[])
     
 
 
@@ -216,7 +191,7 @@ function RoomList({ reservation, getArrivals }) {
       if (showDirty) statusFilter.push('Dirty')
       if (showTurning) statusFilter.push('Turning')
 
-      let newRoomList = filteredRoomList;
+      let newRoomList = [];
 
       // room status filtering
       newRoomList = roomList.filter(room => {

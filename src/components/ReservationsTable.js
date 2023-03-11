@@ -16,7 +16,7 @@ import {
 
 import ReservationDialog from './ReservationDialog';
 
-function ReservationTable({ reservations, getArrivals }) {
+function ReservationTable({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
 
     const [filteredReservations, setFilteredReservations] = useState(reservations);
 
@@ -96,7 +96,14 @@ function ReservationTable({ reservations, getArrivals }) {
                                 </TableCell>
                                 <TableCell component="th" scope="row">
 
-                                    <ReservationDialog reservation={reservation} getArrivals={getArrivals} buttonText={'open'} />
+                                    <ReservationDialog 
+                                        reservation={reservation} 
+                                        getReservations={getReservations} 
+                                        roomList={roomList} 
+                                        getRoomList={getRoomList}
+                                        roomTypes={roomTypes} 
+                                        buttonText={'open'} 
+                                    />
                                 </TableCell>
                                 {/* <TableCell align="right">{calories}</TableCell> */}
                             </TableRow>

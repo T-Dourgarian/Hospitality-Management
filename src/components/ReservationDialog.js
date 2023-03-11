@@ -21,7 +21,7 @@ import PersonIcon from '@mui/icons-material/Person';
 
 import RoomList from './RoomList';
 
-function ReservationDialog({ reservation, getArrivals,  buttonText} ) {
+function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -100,7 +100,7 @@ function ReservationDialog({ reservation, getArrivals,  buttonText} ) {
                       <Divider />
                     </Grid>
                     <Grid item>
-                      <RoomList reservation={reservation} getArrivals={getArrivals}/>
+                      <RoomList reservation={reservation} getReservations={getReservations} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
                     </Grid>
                     <Grid item py={2}>
                       <Divider />

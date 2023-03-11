@@ -8,8 +8,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Link from '@mui/material/Link';
 import { ListItemText, Collapse, ListItemIcon, InboxIcon } from '@mui/material';
 import axios from 'axios';
-import Arrivals from './Arrivals';
-import FrontDesk from './FrontDesk';
 import React, { useState } from 'react';
 import { Outlet, Link as RouterLink } from "react-router-dom";
 
