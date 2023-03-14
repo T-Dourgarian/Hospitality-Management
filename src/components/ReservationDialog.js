@@ -22,7 +22,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import RoomList from './RoomList';
 
 function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
       setOpen(true);
