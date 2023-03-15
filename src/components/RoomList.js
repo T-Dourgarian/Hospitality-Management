@@ -206,6 +206,8 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
           return room.vacant;
         } else if ( showOccupied) {
           return !room.vacant;
+        } else {
+          return true;
         }
       })
 

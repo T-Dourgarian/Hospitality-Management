@@ -13,6 +13,7 @@ const userRouter = require('./routes/user.router');
 const reservationRouter = require('./routes/reservation.router');
 const roomRouter = require('./routes/room.router');
 const roomTypeRouter= require('./routes/roomType.router');
+const statusRouter = require('./routes/status.router');
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -30,7 +31,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/reservation', reservationRouter);
 app.use('/api/v1/room', roomRouter);
 app.use('/api/v1/roomType', roomTypeRouter);
-// app.use('/cards', cardsRouter)
+app.use('/api/v1/status', statusRouter)
 
 // Serve static files
 app.use(express.static('build'));

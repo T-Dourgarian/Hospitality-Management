@@ -14,7 +14,8 @@ import {
     InputLabel,
     Card,
     Collapse,
-    Divider
+    Divider,
+    Typography
 } from '@mui/material';
 
 import PersonIcon from '@mui/icons-material/Person';
@@ -23,6 +24,7 @@ import RoomList from './RoomList';
 
 function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
     const [open, setOpen] = useState(false);
+    const [checkInAlert, setCheckInAlert] = useState('');
 
     const handleClickOpen = () => {
       setOpen(true);
@@ -37,14 +39,29 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
       let today = new Date();
 
       return checkIn.toDateString() == today.toDateString() && reservation.status == 'reserved';
-    }
+    };
+
+
+    const handleCheckIn = async () => {
+      try {
+
+        const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
+          reservation_id: reservation.reservation_id
+        })
+
+        console.log('response',response);
+        
+      } catch (error) {
+        console.log(error);
+      }
+    };
   
     return (
       <div>
         <Button variant="outlined" onClick={handleClickOpen}>
           {buttonText}
         </Button>
-        <Dialog open={open} keepMounted fullScreen>
+        <Dialog open={open} fullScreen>
           <DialogTitle> {reservation.last_name}, {reservation.first_name} </DialogTitle>
           <DialogContent>
             {/* <Grid container direction="row" >
@@ -119,11 +136,17 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
               {
                   reservation.status == 'reserved' && isCheckIn(reservation) &&
                   <Button 
-                      onClick={handleClose}               
+                      onClick={handleCheckIn}               
                       variant="contained"
                   > Check In</Button>
               }
               <Button onClick={handleClose}>Cancel</Button>
+
+              {
+                <Typography>
+                  { checkInAlert }
+                </Typography>
+              }
             </Grid>
           </DialogActions>
         </Dialog>

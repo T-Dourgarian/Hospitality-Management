@@ -14,15 +14,13 @@ import {
     TextField
 } from '@mui/material';
 
-import { useSelector, useDispatch } from 'react-redux'
+// import { useSelector, useDispatch } from 'react-redux'
 
 import ReservationDialog from './ReservationDialog';
 
 function ReservationTable({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
 
     const [filteredReservations, setFilteredReservations] = useState(reservations);
-
-    const key = useSelector((state) => state.key)
 
     const [lastName, setLastName] = useState('');
 
@@ -50,7 +48,7 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                     onChange={(e) => setLastName(e.target.value)}
                 />
             </Grid>
-            {key}
+
             <TableContainer component={Paper}>
                 <Table size="small" aria-label="simple table">
                     <TableHead>
