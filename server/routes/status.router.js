@@ -57,22 +57,34 @@ router.put('/checkout', async(req,res) => {
         const { reservation_id, checkOutTime  } = req.params 
 
 
-        const queryText = 
-        `
+        client.query('BEGIN;')
+
+        client.query
+        (
+            `
             UPDATE reservation
             SET status = 'checked_out',
-                checked_in_at = $1
-            WEHERE id = $2
-        `
+                checked_out_at = $1
+            WHERE id = $2;
+            `,
+            ['18:36:00', reservation_id]
+        )
+
+        client.query
+        (
+            `
+            UPDATE room
+                SET vacant = true,
+                reservation_id = null,
+                guest_id = null
+            WHERE reservation_id = $1;
+            `,
+            [reservation_id]
+        )
+
+        client.query('COMMIT;')
         
-        pool.query(queryText,[checkOutTime, reservation_id])
-            .then(result => {
-                res.send(result.rows);
-            })
-            .catch(error => {
-                console.log(error);
-                res.sendStatus(500);
-            });
+        res.sendStatus(200)
 
 
     }catch(error) {

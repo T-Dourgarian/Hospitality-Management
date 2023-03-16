@@ -54,8 +54,6 @@ router.post('/assign', async(req,res) => {
 
         await client.query('BEGIN;')
 
-        console.log('reservation_id',reservation_id);
-        console.log('room_id', room_id);
 
 
         const room = await client.query(
@@ -65,7 +63,6 @@ router.post('/assign', async(req,res) => {
             `,[room_id])
 
 
-            console.log('room', room)
 
         if (room.rows[0].reservation_id) { // remove previously assigned room from reservation so I can assign the room to the new reservation
             await client.query(

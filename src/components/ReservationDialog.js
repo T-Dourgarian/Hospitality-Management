@@ -25,6 +25,8 @@ import RoomList from './RoomList';
 function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
     const [open, setOpen] = useState(false);
     const [checkInAlert, setCheckInAlert] = useState('');
+    const [reservationLocal, setReservationLocal] = useState(reservation);
+    const [updateMade, setUpdateMade] = useState(false);
 
     const handleClickOpen = () => {
       setOpen(true);
@@ -32,13 +34,18 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
   
     const handleClose = () => {
       setOpen(false);
+
+      if (updateMade) {
+        getReservations();
+        getRoomList();
+      }
     };
 
     const isCheckIn = (reservation) => {
-      let checkIn = new Date(reservation.check_in);
+      let checkIn = new Date(reservationLocal.check_in);
       let today = new Date();
 
-      return checkIn.toDateString() == today.toDateString() && reservation.status == 'reserved';
+      return checkIn.toDateString() == today.toDateString() && reservationLocal.status == 'reserved';
     };
 
 
@@ -46,7 +53,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
       try {
 
         const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
-          reservation_id: reservation.reservation_id
+          reservation_id: reservationLocal.reservation_id
         })
 
         console.log('response',response);
@@ -55,17 +62,24 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
         console.log(error);
       }
     };
-  
+
+    const handleDialogClose = () => {
+      console.log('here');
+    }
+     
     return (
       <div>
         <Button variant="outlined" onClick={handleClickOpen}>
           {buttonText}
         </Button>
-        <Dialog open={open} fullScreen>
-          <DialogTitle> {reservation.last_name}, {reservation.first_name} </DialogTitle>
+        <Dialog 
+          open={open} 
+          fullScreen
+        >
+          <DialogTitle> {reservationLocal.last_name}, {reservationLocal.first_name} </DialogTitle>
           <DialogContent>
             {/* <Grid container direction="row" >
-                <Input id="component-disabled" defaultValue={reservation.last_name} />
+                <Input id="component-disabled" defaultValue={reservationLocal.last_name} />
             </Grid> */}
             <Grid container direction="row" spacing={6}>
               <Grid item>
@@ -77,7 +91,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                               Arrival
                           </div>
                           <div className='ReservationModalData'>
-                              { reservation.check_in.split('T')[0].split('-')[1] + '/' + reservation.check_in.split('T')[0].split('-')[2]}
+                              { reservationLocal.check_in.split('T')[0].split('-')[1] + '/' + reservationLocal.check_in.split('T')[0].split('-')[2]}
                           </div>
                       </Grid>
                       <Grid item>
@@ -85,7 +99,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                               Departure
                           </div>
                           <div className='ReservationModalData'>
-                              { reservation.check_out.split('T')[0].split('-')[1] + '/' + reservation.check_out.split('T')[0].split('-')[2]}
+                              { reservationLocal.check_out.split('T')[0].split('-')[1] + '/' + reservationLocal.check_out.split('T')[0].split('-')[2]}
                           </div>
                       </Grid>
                       <Grid item>
@@ -93,7 +107,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                               # of Nights
                           </div>
                           <div className='ReservationModalData'>
-                              { reservation.num_of_nights }
+                              { reservationLocal.num_of_nights }
                           </div>
                       </Grid>
                       <Grid item>
@@ -101,7 +115,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                               Room
                           </div>
                           <div className='ReservationModalData'>
-                              { reservation.room_number ? reservation.room_number : 'Unassigned' }
+                              { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' }
                           </div>
                       </Grid>
                       <Grid item>
@@ -109,7 +123,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                               Room Type
                           </div>
                           <div className='ReservationModalData'>
-                              { reservation.name_short }
+                              { reservationLocal.name_short }
                           </div>
                       </Grid>
                     </Grid>
@@ -117,7 +131,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                       <Divider />
                     </Grid>
                     <Grid item>
-                      <RoomList reservation={reservation} getReservations={getReservations} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
+                      <RoomList reservation={reservationLocal} setReservationLocal={setReservationLocal} setUpdateMade={setUpdateMade} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
                     </Grid>
                     <Grid item py={2}>
                       <Divider />
@@ -134,7 +148,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
               
               
               {
-                  reservation.status == 'reserved' && isCheckIn(reservation) &&
+                  reservationLocal.status == 'reserved' && isCheckIn(reservation) &&
                   <Button 
                       onClick={handleCheckIn}               
                       variant="contained"

@@ -69,7 +69,7 @@ const statusCellStyle = (r) => {
   }
 }
 
-function RoomList({ reservation, getReservations, roomList, getRoomList, roomTypes }) {
+function RoomList({ reservation, setReservationLocal, setUpdateMade, roomList, roomTypes }) {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -85,6 +85,9 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
     const [confirmRoomTypeSwitch, setConfirmRoomTypeSwitch] = useState(false);
     const [confirmReAssignRoom, setConfirmReAssignRoom] = useState(false);
     const [assignDialog, setAssignDialog] = useState(false);
+    const [localRoomList, setLocalRoomList] = useState(roomList);
+    const [updateFlag, setUpdateFlag] = useState(false);
+
 
     const handleAssignOpen = (room) => {
       setRoomToAssign(room);
@@ -142,7 +145,14 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
       return false;
     }
 
-    // finish this
+    const resetLocalRoomList = async () => {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
+      setLocalRoomList(response.data)
+
+      setUpdateFlag(!updateFlag);
+
+    }
+
     const handleAssignRoom = async () => {
       try {
 
@@ -158,9 +168,17 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
 
         setAssignDialog(false);
 
-        getRoomList();
-        getReservations();
+        setReservationLocal(
+          {
+            ...reservation,
+            room_number: roomToAssign.number
+          }
+        )
 
+        resetLocalRoomList();
+
+
+        setUpdateMade(true);
 
       } catch(error) {
         console.log(error);
@@ -194,7 +212,7 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
       let newRoomList = [];
 
       // room status filtering
-      newRoomList = roomList.filter(room => {
+      newRoomList = localRoomList.filter(room => {
         return statusFilter.includes(room.status_name);
       })
 
@@ -217,7 +235,7 @@ function RoomList({ reservation, getReservations, roomList, getRoomList, roomTyp
       })
 
       setFilteredRoomList(newRoomList);
-    }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks)])
+    }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks), updateFlag])
 
 
     return (
