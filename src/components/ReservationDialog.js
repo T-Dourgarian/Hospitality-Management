@@ -42,18 +42,29 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
     };
 
     const isCheckIn = (reservation) => {
-      let checkIn = new Date(reservationLocal.check_in);
+      let checkIn = new Date(reservation.check_in);
       let today = new Date();
 
-      return checkIn.toDateString() == today.toDateString() && reservationLocal.status == 'reserved';
+      return checkIn.toDateString() == today.toDateString() && reservation.status == 'reserved';
     };
+
+    const isCheckOut = () => {
+      let checkIn = new Date(reservation.check_out);
+      let today = new Date();
+
+      return checkIn.toDateString() == today.toDateString() && reservation.status == 'checked_in';
+    }
 
 
     const handleCheckIn = async () => {
       try {
 
+        let d = new Date();
+        let currentTime = d.toLocaleTimeString();
+
         const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
-          reservation_id: reservationLocal.reservation_id
+          reservation_id: reservationLocal.reservation_id,
+          checkInTime: currentTime
         })
 
         console.log('response',response);
@@ -63,9 +74,24 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
       }
     };
 
-    const handleDialogClose = () => {
-      console.log('here');
+    const handleCheckOut = async () => {
+      try {
+
+        let d = new Date();
+        let currentTime = d.toLocaleTimeString();
+
+        const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkout`, {
+          reservation_id: reservationLocal.reservation_id,
+          checkOutTime: currentTime
+        })
+
+        console.log('response',response);
+        
+      } catch (error) {
+        console.log(error);
+      }
     }
+
      
     return (
       <div>
@@ -148,11 +174,19 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
               
               
               {
-                  reservationLocal.status == 'reserved' && isCheckIn(reservation) &&
+                  isCheckIn(reservation) &&
                   <Button 
                       onClick={handleCheckIn}               
                       variant="contained"
                   > Check In</Button>
+              }
+
+              {
+                  isCheckOut(reservation) &&
+                  <Button 
+                      onClick={handleCheckOut}               
+                      variant="contained"
+                  > Check Out</Button>
               }
               <Button onClick={handleClose}>Cancel</Button>
 

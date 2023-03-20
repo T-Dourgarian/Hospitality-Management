@@ -11,14 +11,14 @@ router.put('/checkin', async(req,res) => {
 
         const { reservation_id, checkInTime  } = req.body; 
 
-        console.log(reservation_id);
+        console.log('reservation_id', reservation_id);
 
 
         const client = await pool.connect();
 
-        client.query('BEGIN;')
+        await client.query('BEGIN;')
 
-        client.query
+        await client.query
         (
             `
             UPDATE reservation
@@ -26,10 +26,10 @@ router.put('/checkin', async(req,res) => {
                 checked_in_at = $1
             WHERE id = $2;
             `,
-            ['18:36:00', reservation_id]
+            [checkInTime, reservation_id]
         )
 
-        client.query
+        await client.query
         (
             `
             UPDATE room
@@ -39,7 +39,7 @@ router.put('/checkin', async(req,res) => {
             [reservation_id]
         )
 
-        client.query('COMMIT;')
+        await client.query('COMMIT;')
         
         res.sendStatus(200)
 
@@ -54,12 +54,16 @@ router.put('/checkin', async(req,res) => {
 router.put('/checkout', async(req,res) => {
     try {
 
-        const { reservation_id, checkOutTime  } = req.params 
+        const { reservation_id, checkOutTime  } = req.body;
+
+        console.log('reservation_id', reservation_id);
+
+        const client = await pool.connect();
 
 
-        client.query('BEGIN;')
+        await client.query('BEGIN;')
 
-        client.query
+        await client.query
         (
             `
             UPDATE reservation
@@ -67,10 +71,10 @@ router.put('/checkout', async(req,res) => {
                 checked_out_at = $1
             WHERE id = $2;
             `,
-            ['18:36:00', reservation_id]
+            [checkOutTime, reservation_id]
         )
 
-        client.query
+        await client.query
         (
             `
             UPDATE room
@@ -82,7 +86,7 @@ router.put('/checkout', async(req,res) => {
             [reservation_id]
         )
 
-        client.query('COMMIT;')
+        await client.query('COMMIT;')
         
         res.sendStatus(200)
 
