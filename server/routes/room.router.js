@@ -43,6 +43,41 @@ router.get('/all', async(req,res) => {
     }
 });
 
+router.get('/inventory', async(req,res) => {
+    try {
+
+        const queryText = 
+        `
+        SELECT room_type.name_short, count(*) FROM room
+            LEFT JOIN room_type ON room.room_type_id = room_type.id
+            WHERE inventory_status = 'available'
+            GROUP BY room_type.name_short;
+        `;
+
+        const queryText2 = 
+        `
+        SELECT room_type.name_short, count(*) FROM reservation
+            LEFT JOIN room_type ON reservation.room_type_id = room_type.id
+            WHERE check_in = '2023-03-22' AND
+                status = 'reserved'
+            GROUP BY room_type.name_short;
+        `;
+        
+        const { rows: totalInventory } = await pool.query(queryText);
+
+        const { rows: bookedInventory } = await pool.query(queryText2);
+
+        res.send({
+            totalInventory,
+            bookedInventory
+        });
+
+
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
 
 
 router.post('/assign', async(req,res) => {
@@ -112,5 +147,8 @@ router.post('/assign', async(req,res) => {
         res.sendStatus(400);
     }
 });
+
+
+
 
 module.exports = router;

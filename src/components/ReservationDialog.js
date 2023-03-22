@@ -178,6 +178,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                   <Button 
                       onClick={handleCheckIn}               
                       variant="contained"
+                      disabled={!Number.isInteger(reservationLocal.room_number)}
                   > Check In</Button>
               }
 

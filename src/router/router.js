@@ -3,6 +3,7 @@ import {
 } from "react-router-dom";
 import Nav from '../components/Nav';
 import FrontDesk from '../components/FrontDesk';
+import RoomManagment from "../components/RoomManagement";
 
 const router = createBrowserRouter([
 {
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
     {
         path: "frontdesk",
         element: <FrontDesk />,
+    },
+    {
+        path: "roommanagement",
+        element: <RoomManagment/>,
     },
     ],
 }

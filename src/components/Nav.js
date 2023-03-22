@@ -28,7 +28,7 @@ function Nav() {
         <Grid container direction="row" spacing={2}>
             <Grid item width="15%">
                 <List>
-                    {['Front Desk'].map((text, index) => (
+                    {['Front Desk', 'Room Management'].map((text, index) => (
                         <ListItem 
                             key={index} 
                             disablePadding 
