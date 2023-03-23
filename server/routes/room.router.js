@@ -67,12 +67,14 @@ router.post('/inventory', async(req,res) => {
                 reservation.status != 'cancelled' AND
                 reservation.status != 'checked_out'
             GROUP BY  room_type.name_short, room_type.id
+            ORDER BY room_type.id ASC
             `;
 
         const roomTypeQuery = 
         `
         SELECT *
-        FROM room_type;
+        FROM room_type
+        ORDER BY id ASC;
         `;
 
 
