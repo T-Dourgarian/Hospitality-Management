@@ -43,33 +43,62 @@ router.get('/all', async(req,res) => {
     }
 });
 
-router.get('/inventory', async(req,res) => {
+// actually just a get request
+router.post('/inventory', async(req,res) => {
     try {
 
-        const queryText = 
+        const { date, dateArray } = req.body;
+
+        const totalInventoryQuery = 
         `
-        SELECT room_type.name_short, count(*) FROM room
+        SELECT room_type.id, room_type.name_short, count(*) FROM room
             LEFT JOIN room_type ON room.room_type_id = room_type.id
             WHERE inventory_status = 'available'
-            GROUP BY room_type.name_short;
+            GROUP BY room_type.id, room_type.name_short;
         `;
 
-        const queryText2 = 
+        let bookedInventoryQuery = 
+            `
+            SELECT COUNT(room_type.id), room_type.name_short, room_type.id 
+            FROM room_type
+            LEFT JOIN reservation ON room_type.id = reservation.room_type_id 
+            WHERE reservation.check_in <= $1 AND 
+                reservation.check_out > $1 AND 
+                reservation.status != 'cancelled' AND
+                reservation.status != 'checked_out'
+            GROUP BY  room_type.name_short, room_type.id
+            `;
+
+        const roomTypeQuery = 
         `
-        SELECT room_type.name_short, count(*) FROM reservation
-            LEFT JOIN room_type ON reservation.room_type_id = room_type.id
-            WHERE check_in = '2023-03-22' AND
-                status = 'reserved'
-            GROUP BY room_type.name_short;
+        SELECT *
+        FROM room_type;
         `;
-        
-        const { rows: totalInventory } = await pool.query(queryText);
 
-        const { rows: bookedInventory } = await pool.query(queryText2);
+
+        let bookedInventory = {};
+        
+        if (dateArray) {
+            for (let i = 0; i < dateArray.length;  i ++) {
+                let { rows } = await pool.query(bookedInventoryQuery, [dateArray[i]]);
+
+                bookedInventory[dateArray[i]] = rows;
+
+            }
+        } else {
+            const { rows } = await pool.query(bookedInventoryQuery, date);
+
+            bookedInventory[date] = rows;
+        }
+
+
+        const { rows: totalInventory } = await pool.query(totalInventoryQuery);
+        const { rows: roomTypes } = await pool.query(roomTypeQuery);
 
         res.send({
             totalInventory,
-            bookedInventory
+            bookedInventory,
+            roomTypes
         });
 
 

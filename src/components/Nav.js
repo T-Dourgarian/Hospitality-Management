@@ -35,10 +35,10 @@ function Nav() {
                             className="menuItem"
                         >
                             <ListItemButton
-                                onClick={ () => setTabSelected('Front Desk') }
+                                onClick={ () => setTabSelected(text) }
                                 color="danger"
                                 pl={3}
-                                selected={tabSelected == 'Front Desk'}
+                                selected={tabSelected == text}
                                 component={RouterLink}
                                 to={`/${text.replaceAll(' ','').toLowerCase()}`}
                             >
