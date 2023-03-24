@@ -3,7 +3,7 @@ import {
 } from "react-router-dom";
 import Nav from '../components/Nav';
 import FrontDesk from '../components/FrontDesk';
-import RoomManagment from "../components/RoomManagement";
+import RoomManagement from "../components/RoomManagement";
 
 const router = createBrowserRouter([
 {
@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     },
     {
         path: "roommanagement",
-        element: <RoomManagment/>,
+        element: <RoomManagement />,
     },
     ],
 }

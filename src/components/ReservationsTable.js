@@ -62,7 +62,6 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                             <TableCell>Room Type</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Rate</TableCell>
-                            <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

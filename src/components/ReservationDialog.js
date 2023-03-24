@@ -20,7 +20,7 @@ import {
 
 import PersonIcon from '@mui/icons-material/Person';
 
-import RoomList from './RoomList';
+import RoomList from './AssignRoom';
 
 function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
     const [open, setOpen] = useState(false);

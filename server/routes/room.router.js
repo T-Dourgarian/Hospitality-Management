@@ -43,6 +43,89 @@ router.get('/all', async(req,res) => {
     }
 });
 
+router.get('/assigned', async(req,res) => {
+    try {
+
+        let date = new Date();
+        let futureDate = new Date()
+
+        futureDate.setDate(futureDate.getDate() + 5)
+
+        const TODAY_YYYYMMDD = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+        const FUTURE_YYYYMMDD = futureDate.getFullYear() + '-' + (futureDate.getMonth() + 1) + '-' + futureDate.getDate();
+
+        const assignedReservationsQuery = 
+        `
+        SELECT 
+            res.id,
+            res.check_in,
+            res.check_out,
+            res.room_id,
+            res.num_of_nights,
+            guest.id as guest_id,
+            guest.first_name,
+            guest.last_name
+        FROM reservation res
+        RIGHT JOIN guest ON res.guest_id = guest.id
+        WHERE check_in >= $1 AND
+            check_in <= $2 AND
+            res.room_id IS NOT NULL
+        ORDER BY check_in ASC;
+        `;
+        
+        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [TODAY_YYYYMMDD, FUTURE_YYYYMMDD])
+
+        const roomListQuery = 
+        `
+        SELECT 
+            room.id,
+            room.number,
+            rst.name,
+            rst.name_short
+        FROM room
+        LEFT JOIN room_status_type rst ON room.status_type_id = rst.id
+        WHERE room.property_id = 1;
+        `
+
+        const { rows: roomList } =  await pool.query(roomListQuery);
+
+        res.status(200).send(assignedReservations)
+        
+
+
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
+
+router.get('/roomlist', async(req,res) => {
+    try {
+
+        const roomListQuery = 
+        `
+        SELECT 
+            room.id,
+            room.number,
+            rst.name,
+            rst.name_short
+        FROM room
+        LEFT JOIN room_status_type rst ON room.status_type_id = rst.id
+        WHERE room.property_id = 1
+        ORDER BY room.id ASC;
+        `
+
+        const { rows: roomList } =  await pool.query(roomListQuery);
+
+        res.status(200).send(roomList);
+
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
 // actually just a get request
 router.post('/inventory', async(req,res) => {
     try {
@@ -124,7 +207,7 @@ router.post('/assign', async(req,res) => {
 
         const room = await client.query(
             `   Select * FROM room
-                WHERE room.id = $1
+                WHERE id = $1
                 LIMIT 1;
             `,[room_id])
 
@@ -134,7 +217,7 @@ router.post('/assign', async(req,res) => {
             await client.query(
             `   UPDATE reservation
                 SET room_id = NULL
-                WHERE reservation.id = $1;
+                WHERE id = $1;
             `,[room.rows[0].reservation_id])
         }
 
@@ -158,7 +241,7 @@ router.post('/assign', async(req,res) => {
         `   UPDATE reservation
             SET room_id = $1,
                 room_type_id = $2
-            WHERE reservation.id = $3
+            WHERE id = $3
             RETURNING guest_id;
         `,[room_id, room_type_id, reservation_id])
    
@@ -166,7 +249,7 @@ router.post('/assign', async(req,res) => {
         `   UPDATE room
             SET reservation_id = $1,
                 guest_id = $2
-            WHERE room.id = $3;
+            WHERE id = $3;
         `,[reservation_id, reservation.rows[0].guest_id, room_id])
         
         await client.query('COMMIT;')
