@@ -16,50 +16,144 @@ import {
 
 // import { useSelector, useDispatch } from 'react-redux'
 
+import { useTheme } from '@mui/material/styles';
+
 import ReservationDialog from './ReservationDialog';
 
-function RoomList({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
+function RoomList() {
+
+    const theme = useTheme();
+
+    const [roomList, setRoomList] = useState(null);
+    const [assignedReservations, setAssignedReservations] = useState(null);
+
+    const [dateArray, setDateArray] = useState(() => {
+        Date.prototype.addDays = function(days) {
+            var date = new Date(this.valueOf());
+            date.setDate(date.getDate() + days);
+            return date;
+        }
+        
+        function getDates(startDate, stopDate) {
+            var dateArray = new Array();
+            var currentDate = startDate;
+            while (currentDate <= stopDate) {
+                dateArray.push(new Date (currentDate));
+                currentDate = currentDate.addDays(1);
+            } 
+
+            return dateArray;
+        }
+
+         
+        let tempDate = new Date()
+        tempDate.setDate(tempDate.getDate() + 10)
+        return getDates(new Date(), tempDate);
+
+
+    })
 
     useEffect(() => {
+
+        const getRoomList = async () => {
+            try {
+                const { data } = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/roomlist`);
+
+                console.log(data);
+
+                setRoomList(data);
+
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        const getAssignedReservations = async () => {
+            try {
+                const { data } = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/assigned`);
+
+                setAssignedReservations(data);
+
+                console.log('assigned res', data);
+
+
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+
+        getRoomList();
+        getAssignedReservations();
         
     }, [])
 
 
     return (
-        <Grid container direction="column" spacing={2} pt={4}>
-            {/* <Grid item width="100%">
-                <TextField 
-                    id="standard-basic" 
-                    size="small"
-                    label="Last Name" 
-                    variant="outlined" 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
-            </Grid> */}
-
-            <TableContainer component={Paper}>
-                <Table size="small" aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Last Name</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {filteredReservations && filteredReservations.map( reservation => 
-                            <TableRow
-                                key={reservation.reservation_id}
+    
+            <Grid container pt={4} width="100%">
+                {/* room list */}
+                <Grid item xs={3}>
+                    <Grid container direction="column" >
+                        {/* header - room List */}
+                        <Grid item>
+                            <Grid 
+                                container
+                                sx={{
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#EAEAEA'
+                                }}
+                                py={2}
+                                pl={2}
+                                justifyContent='space-between'
                             >
-                                <TableCell component="th" scope="row">
-                                    { reservation.last_name }
-                                </TableCell>
-                                {/* <TableCell align="right">{calories}</TableCell> */}
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Grid>
+                                <Grid item xs={3}>
+                                    #
+                                </Grid>
+                                <Grid item xs={4}>
+                                    Type    
+                                </Grid>
+                                <Grid item xs={3}>
+                                    Status    
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        {/* body - room list */}
+                        <Grid item>
+                            {
+                                roomList && roomList.map(room => (
+                                    <Grid 
+                                        key={room.id}
+                                        container 
+                                        justifyContent={'space-between'}
+                                        pl={2}
+                                        py={1}
+                                        sx={{
+                                            borderBottom: '1px solid black',
+                                            borderRight: '1px solid black'
+                                        }}
+                                    >
+                                        <Grid item xs={3}>
+                                            { room.number }
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                            { room.name_short }    
+                                        </Grid>
+                                        <Grid item xs={3}>
+                                            { room.status }    
+                                        </Grid>
+                                    </ Grid>
+                                ))
+                            }         
+                        </Grid>
+                    </Grid>
+                </Grid>
+                {/* reservations */}
+                <Grid item xs={9}>
+                     asdf           
+                </Grid>
+            </Grid>
+
     );
   }
   

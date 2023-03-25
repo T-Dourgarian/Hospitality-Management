@@ -46,13 +46,12 @@ router.get('/all', async(req,res) => {
 router.get('/assigned', async(req,res) => {
     try {
 
-        let date = new Date();
         let futureDate = new Date()
 
-        futureDate.setDate(futureDate.getDate() + 5)
+        futureDate.setDate(futureDate.getDate() + 10);
 
-        const TODAY_YYYYMMDD = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        const FUTURE_YYYYMMDD = futureDate.getFullYear() + '-' + (futureDate.getMonth() + 1) + '-' + futureDate.getDate();
+        const FUTURE_YYYYMMDD = futureDate.toISOString().split('T')[0];
+
 
         const assignedReservationsQuery = 
         `
@@ -67,27 +66,16 @@ router.get('/assigned', async(req,res) => {
             guest.last_name
         FROM reservation res
         RIGHT JOIN guest ON res.guest_id = guest.id
-        WHERE check_in >= $1 AND
-            check_in <= $2 AND
-            res.room_id IS NOT NULL
-        ORDER BY check_in ASC;
+        WHERE 
+            check_in <= $1 AND
+            res.room_id IS NOT NULL AND
+            res.status <> 'checked_out' AND
+            res.status <> 'cancelled'
+        ORDER BY check_in ASC
         `;
         
-        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [TODAY_YYYYMMDD, FUTURE_YYYYMMDD])
+        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [FUTURE_YYYYMMDD])
 
-        const roomListQuery = 
-        `
-        SELECT 
-            room.id,
-            room.number,
-            rst.name,
-            rst.name_short
-        FROM room
-        LEFT JOIN room_status_type rst ON room.status_type_id = rst.id
-        WHERE room.property_id = 1;
-        `
-
-        const { rows: roomList } =  await pool.query(roomListQuery);
 
         res.status(200).send(assignedReservations)
         
@@ -108,10 +96,12 @@ router.get('/roomlist', async(req,res) => {
         SELECT 
             room.id,
             room.number,
-            rst.name,
-            rst.name_short
+            rst.name as status,
+            rst.name_short as status_short,
+            rt.name_short
         FROM room
         LEFT JOIN room_status_type rst ON room.status_type_id = rst.id
+        LEFT JOIN room_type rt ON room.room_type_id = rt.id
         WHERE room.property_id = 1
         ORDER BY room.id ASC;
         `

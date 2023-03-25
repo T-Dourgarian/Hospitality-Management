@@ -20,16 +20,12 @@ import {
 } from '@mui/material';
 import RoomTypeForcast from './RoomTypeForcast';
 
+import RoomList from './RoomList';
+
 function FrontDesk() {
 
 
     const [value, setValue] = React.useState(0);
-    const [arrivals, setArrivals] = useState([]);
-    const [inHouse, setInHouse] = useState([]);
-    const [departures, setDepartures] = useState([]);
-    const [roomList, setRoomList] = useState([]);
-    const [roomTypes, setRoomTypes] = useState([]);
-
 
     const handleChange = (event, newValue) => {
       setValue(newValue);
@@ -64,7 +60,7 @@ function FrontDesk() {
 
     return (
         <Grid container direction="column" spacing={2} pt={2}>
-            <Grid item width="100%">
+            <Grid item xs={12}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" >
                       <Tab label="Room List" />
@@ -75,7 +71,7 @@ function FrontDesk() {
                     <RoomTypeForcast />                    
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    <RoomTypeForcast />                    
+                    <RoomList />                    
                 </TabPanel>
             </Grid>
         </Grid>

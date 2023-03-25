@@ -26,7 +26,7 @@ function Nav() {
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
-            <Grid item width="15%">
+            <Grid item xs={2}>
                 <List>
                     {['Front Desk', 'Room Management'].map((text, index) => (
                         <ListItem 
@@ -48,7 +48,7 @@ function Nav() {
                     ))}
                 </List>
             </Grid>
-            <Grid item with="85%">
+            <Grid item xs={10}>
                 <Outlet />
             </Grid>
         </Grid>

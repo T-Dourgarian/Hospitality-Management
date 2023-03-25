@@ -54,7 +54,6 @@ function RoomTypeForcast() {
             setTotalInventory(data.totalInventory);
             setRoomTypes(data.roomTypes);
     
-            console.log('data', data)
         } catch(error) {
             console.log(error)
         }
