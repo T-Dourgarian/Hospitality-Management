@@ -14,7 +14,6 @@ import {
     TextField
 } from '@mui/material';
 
-// import { useSelector, useDispatch } from 'react-redux'
 
 import { useTheme } from '@mui/material/styles';
 
@@ -25,7 +24,8 @@ function RoomList() {
     const theme = useTheme();
 
     const [roomList, setRoomList] = useState(null);
-    const [assignedReservations, setAssignedReservations] = useState(null);
+    const [assignedReservations, setAssignedReservations] = useState([]);
+
 
     const [dateArray, setDateArray] = useState(() => {
         Date.prototype.addDays = function(days) {
@@ -47,7 +47,7 @@ function RoomList() {
 
          
         let tempDate = new Date()
-        tempDate.setDate(tempDate.getDate() + 10)
+        tempDate.setDate(tempDate.getDate() + 8)
         return getDates(new Date(), tempDate);
 
 
@@ -91,9 +91,9 @@ function RoomList() {
 
     return (
     
-            <Grid container pt={4} width="100%">
+            <Grid container pt={4}>
                 {/* room list */}
-                <Grid item xs={3}>
+                <Grid item xs={12}>
                     <Grid container direction="column" >
                         {/* header - room List */}
                         <Grid item>
@@ -107,15 +107,22 @@ function RoomList() {
                                 pl={2}
                                 justifyContent='space-between'
                             >
-                                <Grid item xs={3}>
+                                <Grid item xs={1}>
                                     #
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid item xs={1}>
                                     Type    
                                 </Grid>
-                                <Grid item xs={3}>
+                                <Grid item xs={1}>
                                     Status    
                                 </Grid>
+                                {
+                                    dateArray && dateArray.map(date => (
+                                        <Grid item key={date}>
+                                            { MMDD(date) }
+                                        </Grid>
+                                    ))
+                                }
                             </Grid>
                         </Grid>
                         {/* body - room list */}
@@ -133,25 +140,48 @@ function RoomList() {
                                             borderRight: '1px solid black'
                                         }}
                                     >
-                                        <Grid item xs={3}>
+                                        <Grid item xs={1}>
                                             { room.number }
                                         </Grid>
-                                        <Grid item xs={4}>
+                                        <Grid item xs={1}>
                                             { room.name_short }    
                                         </Grid>
-                                        <Grid item xs={3}>
+                                        <Grid item xs={1}>
                                             { room.status }    
                                         </Grid>
+
+
+                                        {
+                                            dateArray && dateArray.map((date, i) => {
+
+                                                const assignedResArray = assignedReservations.filter(assignedRes => assignedRes.room_id === room.id);
+
+                                                if (assignedResArray[0]) {
+
+                                                    for(const res of assignedResArray) {
+                                                        let check_out = new Date(res.check_out);
+                                                        if (
+                                                            (date <= check_out)
+                                                        ) {
+                                                            return (<Grid xs={1} item key={i}> {res.last_name} </Grid>)
+                                                        } else {
+                                                            return (<Grid xs={1} item key={i}>-</Grid>)
+                                                        }
+                                                    }
+                                                } else {
+                                                    return (<Grid xs={1} item key={i}>-</Grid>) 
+                                                }
+
+                                            })
+                                        }
+
                                     </ Grid>
                                 ))
                             }         
                         </Grid>
                     </Grid>
                 </Grid>
-                {/* reservations */}
-                <Grid item xs={9}>
-                     asdf           
-                </Grid>
+            
             </Grid>
 
     );
