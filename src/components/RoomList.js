@@ -47,7 +47,7 @@ function RoomList() {
 
          
         let tempDate = new Date()
-        tempDate.setDate(tempDate.getDate() + 8)
+        tempDate.setDate(tempDate.getDate() + 7)
         return getDates(new Date(), tempDate);
 
 
@@ -85,7 +85,7 @@ function RoomList() {
 
         getRoomList();
         getAssignedReservations();
-        
+                
     }, [])
 
 
@@ -107,7 +107,7 @@ function RoomList() {
                                 pl={2}
                                 justifyContent='space-between'
                             >
-                                <Grid item xs={1}>
+                                <Grid item xs={1} >
                                     #
                                 </Grid>
                                 <Grid item xs={1}>
@@ -116,9 +116,12 @@ function RoomList() {
                                 <Grid item xs={1}>
                                     Status    
                                 </Grid>
+                                <Grid item xs={1}>
+                                    VAC / OCC    
+                                </Grid>
                                 {
                                     dateArray && dateArray.map(date => (
-                                        <Grid item key={date}>
+                                        <Grid item key={date} xs={1} textAlign='center'>
                                             { MMDD(date) }
                                         </Grid>
                                     ))
@@ -137,7 +140,7 @@ function RoomList() {
                                         py={1}
                                         sx={{
                                             borderBottom: '1px solid black',
-                                            borderRight: '1px solid black'
+                                            // borderRight: '1px solid black'
                                         }}
                                     >
                                         <Grid item xs={1}>
@@ -146,8 +149,11 @@ function RoomList() {
                                         <Grid item xs={1}>
                                             { room.name_short }    
                                         </Grid>
-                                        <Grid item xs={1}>
+                                        <Grid item xs={1} >
                                             { room.status }    
+                                        </Grid>
+                                        <Grid item xs={1} sx={{ borderRight: '1px solid black'}}>
+                                            { room.vacant ? 'VAC' : 'OCC' }    
                                         </Grid>
 
 
@@ -155,22 +161,40 @@ function RoomList() {
                                             dateArray && dateArray.map((date, i) => {
 
                                                 const assignedResArray = assignedReservations.filter(assignedRes => assignedRes.room_id === room.id);
+                                                
+
+
 
                                                 if (assignedResArray[0]) {
+                                                    for (const assignedRes of assignedResArray) {
+                                                        let check_out = new Date(assignedRes.check_out);
+                                                        let check_in = new Date(assignedRes.check_in);
 
-                                                    for(const res of assignedResArray) {
-                                                        let check_out = new Date(res.check_out);
-                                                        if (
-                                                            (date <= check_out)
-                                                        ) {
-                                                            return (<Grid xs={1} item key={i}> {res.last_name} </Grid>)
-                                                        } else {
-                                                            return (<Grid xs={1} item key={i}>-</Grid>)
+                                                        if (date >= check_in && date < check_out) {
+                                                            return (
+                                                                <Grid 
+                                                                    xs={1} 
+                                                                    item 
+                                                                    key={i}
+                                                                    sx={{
+                                                                        backgroundColor: 'primary.main'
+                                                                    }}
+                                                                    textAlign='center'
+                                                                > {assignedRes.id} </Grid>
+                                                            )
                                                         }
+
+
                                                     }
-                                                } else {
-                                                    return (<Grid xs={1} item key={i}>-</Grid>) 
                                                 }
+
+                                                return (
+                                                    <Grid xs={1} item key={i} textAlign='center'> - </Grid>
+                                                )
+
+
+
+
 
                                             })
                                         }

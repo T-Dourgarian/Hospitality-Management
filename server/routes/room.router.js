@@ -46,11 +46,12 @@ router.get('/all', async(req,res) => {
 router.get('/assigned', async(req,res) => {
     try {
 
-        let futureDate = new Date()
+        let date = new Date()
+        let today = new Date()
 
-        futureDate.setDate(futureDate.getDate() + 10);
+        date.setDate(date.getDate() + 10);
 
-        const FUTURE_YYYYMMDD = futureDate.toISOString().split('T')[0];
+        const FUTURE_YYYYMMDD = date.toISOString().split('T')[0];
 
 
         const assignedReservationsQuery = 
@@ -68,13 +69,14 @@ router.get('/assigned', async(req,res) => {
         RIGHT JOIN guest ON res.guest_id = guest.id
         WHERE 
             check_in <= $1 AND
+            check_out > $2 AND
             res.room_id IS NOT NULL AND
             res.status <> 'checked_out' AND
             res.status <> 'cancelled'
         ORDER BY check_in ASC
         `;
         
-        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [FUTURE_YYYYMMDD])
+        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [FUTURE_YYYYMMDD, today])
 
 
         res.status(200).send(assignedReservations)
@@ -96,6 +98,7 @@ router.get('/roomlist', async(req,res) => {
         SELECT 
             room.id,
             room.number,
+            room.vacant,
             rst.name as status,
             rst.name_short as status_short,
             rt.name_short
