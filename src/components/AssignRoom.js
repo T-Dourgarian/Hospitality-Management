@@ -69,7 +69,7 @@ const statusCellStyle = (r) => {
   }
 }
 
-function RoomList({ reservation, setReservationLocal, setUpdateMade, roomList, roomTypes }) {
+function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList, roomTypes }) {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -520,4 +520,4 @@ function RoomList({ reservation, setReservationLocal, setUpdateMade, roomList, r
     );
   }
   
-  export default RoomList;
+  export default AssignRoom;

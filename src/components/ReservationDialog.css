@@ -1,8 +1,8 @@
 .ReservationModalLabel{
-    color: rgb(133, 133, 133) !important;
+    color: rgb(0, 0, 0) !important;
+    font-weight: bold;
 }
 
 .ReservationModalData {
-    color: rgb(0, 0, 0) !important;
-    font-weight: bold;
+    color: rgb(104, 104, 104) !important;
 }

@@ -20,13 +20,19 @@ import {
 
 import PersonIcon from '@mui/icons-material/Person';
 
-import RoomList from './AssignRoom';
+import Notes from './Notes';
+import AssignRoom from './AssignRoom';
 
 function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
     const [open, setOpen] = useState(false);
     const [checkInAlert, setCheckInAlert] = useState('');
     const [reservationLocal, setReservationLocal] = useState(reservation);
     const [updateMade, setUpdateMade] = useState(false);
+
+
+    useEffect(( )=> {
+      console.log('reservation', reservation)
+    }, [])
 
     const handleClickOpen = () => {
       setOpen(true);
@@ -102,62 +108,133 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
           open={open} 
           fullScreen
         >
-          <DialogTitle> {reservationLocal.last_name}, {reservationLocal.first_name} </DialogTitle>
           <DialogContent>
-            {/* <Grid container direction="row" >
-                <Input id="component-disabled" defaultValue={reservationLocal.last_name} />
-            </Grid> */}
             <Grid container direction="row" spacing={6}>
-              <Grid item>
-                <Grid container direction="column" >
+              <Grid item xs={6}>
+                <Grid container direction="column" spacing={3}>
+                  <Grid 
+                    item
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: '20px'
+                    }}  
+                  >
+                    {reservationLocal.last_name}, {reservationLocal.first_name}  - { reservationLocal.status.replace('_',' ') } - { reservation.reservation_id }
+
+                  </Grid>
                   <Grid item>
-                    <Grid container direction="row" spacing={12}>
-                        <Grid item >
-                          <div className='ReservationModalLabel'>
-                              Arrival
-                          </div>
-                          <div className='ReservationModalData'>
-                              { reservationLocal.check_in.split('T')[0].split('-')[1] + '/' + reservationLocal.check_in.split('T')[0].split('-')[2]}
-                          </div>
-                      </Grid>
+                    <Grid container spacing={2}>
                       <Grid item>
-                          <div className='ReservationModalLabel'>
-                              Departure
-                          </div>
-                          <div className='ReservationModalData'>
-                              { reservationLocal.check_out.split('T')[0].split('-')[1] + '/' + reservationLocal.check_out.split('T')[0].split('-')[2]}
-                          </div>
+                        <Grid 
+                          container 
+                          direction="column" 
+                          spacing={1} 
+                          pr={2}
+                          borderRight={'1px solid black'}
+                        >
+                          <Grid item >
+                            <div className='ReservationModalLabel'>
+                                Arrival
+                            </div>
+                            <div className='ReservationModalData '>
+                                { reservationLocal.check_in.split('T')[0].split('-')[1] + '/' + reservationLocal.check_in.split('T')[0].split('-')[2]}
+                            </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Departure
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.check_out.split('T')[0].split('-')[1] + '/' + reservationLocal.check_out.split('T')[0].split('-')[2]}
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  # of Nights
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.num_of_nights }
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Room # { reservation.dnm &&  'DNM' }
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' }
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Room Type
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.name_short }
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Rate
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.rate }
+                              </div>
+                          </Grid>
+                        </Grid>
                       </Grid>
+
                       <Grid item>
-                          <div className='ReservationModalLabel'>
-                              # of Nights
-                          </div>
-                          <div className='ReservationModalData'>
-                              { reservationLocal.num_of_nights }
-                          </div>
+                        <Grid container direction="column" spacing={1}>
+                          <Grid item >
+                            <div className='ReservationModalLabel'>
+                                Email
+                            </div>
+                            <div className='ReservationModalData '>
+                                { reservationLocal.email}
+                            </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Phone Number
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.phone_number}
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  Street
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.street_address }
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  state
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.state}
+                              </div>
+                          </Grid>
+                          <Grid item>
+                              <div className='ReservationModalLabel'>
+                                  zip
+                              </div>
+                              <div className='ReservationModalData'>
+                                  { reservationLocal.zip_code }
+                              </div>
+                          </Grid>
+                        </Grid>
                       </Grid>
-                      <Grid item>
-                          <div className='ReservationModalLabel'>
-                              Room
-                          </div>
-                          <div className='ReservationModalData'>
-                              { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' }
-                          </div>
-                      </Grid>
-                      <Grid item>
-                          <div className='ReservationModalLabel'>
-                              Room Type
-                          </div>
-                          <div className='ReservationModalData'>
-                              { reservationLocal.name_short }
-                          </div>
-                      </Grid>
+
+
                     </Grid>
                     <Grid item py={2}>
                       <Divider />
                     </Grid>
                     <Grid item>
-                      <RoomList reservation={reservationLocal} setReservationLocal={setReservationLocal} setUpdateMade={setUpdateMade} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
+                      <AssignRoom reservation={reservationLocal} setReservationLocal={setReservationLocal} setUpdateMade={setUpdateMade} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
                     </Grid>
                     <Grid item py={2}>
                       <Divider />
@@ -165,8 +242,11 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                   </Grid>
                 </Grid>
               </Grid>
-              
+              <Grid item xs={6}>
+                <Notes />
+              </Grid>              
             </Grid>
+
             
           </DialogContent>
           <DialogActions>

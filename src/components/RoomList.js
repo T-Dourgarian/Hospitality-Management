@@ -59,7 +59,7 @@ function RoomList() {
             try {
                 const { data } = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/roomlist`);
 
-                console.log(data);
+                // console.log(data);
 
                 setRoomList(data);
 
@@ -74,7 +74,7 @@ function RoomList() {
 
                 setAssignedReservations(data);
 
-                console.log('assigned res', data);
+                // console.log('assigned res', data);
 
 
             } catch (error) {
