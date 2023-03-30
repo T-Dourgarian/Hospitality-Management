@@ -40,9 +40,9 @@ function RoomTypeForcast() {
         return dateArray;
     });
 
-    const [bookedInventory, setBookedInventory] = useState({});
+    const [bookedInventory, setBookedInventory] = useState(null);
     const [totalInventory, setTotalInventory] = useState([]);
-    const [roomTypes, setRoomTypes] = useState([]);
+    const [roomTypes, setRoomTypes] = useState(null);
 
     const getInventoryData = async () => {
         try {
@@ -53,6 +53,8 @@ function RoomTypeForcast() {
             setBookedInventory(data.bookedInventory);
             setTotalInventory(data.totalInventory);
             setRoomTypes(data.roomTypes);
+
+            console.log('data.bookedInventory', data.bookedInventory)
     
         } catch(error) {
             console.log(error)
@@ -65,13 +67,6 @@ function RoomTypeForcast() {
 
     }, [])
 
-
-    const formatCells = (date, bookedType) => {
-
-        const totalInventoryType = totalInventory.find(roomType => roomType.id == bookedType.id);
-
-        return <TableCell>{bookedType.count}</TableCell>
-    }
 
   return (
     <Grid container direction="column" spacing={2} pt={4}>
@@ -86,7 +81,7 @@ function RoomTypeForcast() {
                                     Date
                                 </TableCell>
                                 {
-                                    roomTypes[0] && roomTypes.map(type => 
+                                    roomTypes && roomTypes.map(type => 
                                         <TableCell key={type.id}>
                                             { type.name_short }
                                         </TableCell>
@@ -105,20 +100,41 @@ function RoomTypeForcast() {
                                             { date }
                                         </TableCell>
                                         {    
-                                            !!Object.keys(bookedInventory).length && bookedInventory[date].map(bookedType => {
+                                            
+                                            roomTypes && roomTypes.map(roomType => {
+                                                
+                                                
+                                                    const matchingType = bookedInventory[date].find(type => type.id == roomType.id)
+                                                    const totalInventoryType = totalInventory.find(inventoryType => inventoryType.id == roomType.id)
+                                                    
+                                                    if (matchingType) {
 
-                                                const totalInventoryType = totalInventory.find(roomType => roomType.id == bookedType.id)
-                                                return (
-                                                    <TableCell
-                                                        key={bookedType.id}
-                                                        sx={{
-                                                            color: (totalInventoryType.count - bookedType.count >= 0) ? 'green' : 'red'
-                                                        }}
-                                                    >
-                                                        {totalInventoryType.count - bookedType.count}
-                                                    </TableCell>
-                                                )
+                                                        return (
+                                                            <TableCell
+                                                                key={date + roomType.id}
+                                                                sx={{
+                                                                    color: (totalInventoryType.count - matchingType.count >= 0) ? 'green' : 'red'
+                                                                }}
+                                                            >
+                                                                {totalInventoryType.count - matchingType.count}
+                                                            </TableCell>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <TableCell
+                                                                key={date + roomType.id}
+                                                                sx={{
+                                                                    color: 'green'
+                                                                }}
+                                                            >
+                                                                { totalInventoryType.count }
+                                                            </TableCell>
+                                                        )
+                                                    }
+                                            
+
                                             })
+                                            
                                             
                                         }  
                                     </TableRow>    

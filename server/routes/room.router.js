@@ -46,12 +46,10 @@ router.get('/all', async(req,res) => {
 router.get('/assigned', async(req,res) => {
     try {
 
-        let date = new Date()
+        let futureDate = new Date()
         let today = new Date()
 
-        date.setDate(date.getDate() + 10);
-
-        const FUTURE_YYYYMMDD = date.toISOString().split('T')[0];
+        futureDate.setDate(futureDate.getDate() + 10);
 
 
         const assignedReservationsQuery = 
@@ -76,7 +74,7 @@ router.get('/assigned', async(req,res) => {
         ORDER BY check_in ASC
         `;
         
-        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [FUTURE_YYYYMMDD, today])
+        const { rows: assignedReservations } =  await pool.query(assignedReservationsQuery, [futureDate, today])
 
 
         res.status(200).send(assignedReservations)
@@ -153,23 +151,23 @@ router.post('/inventory', async(req,res) => {
         ORDER BY id ASC;
         `;
 
-
+        
         let bookedInventory = {};
         
         if (dateArray) {
             for (let i = 0; i < dateArray.length;  i ++) {
                 let { rows } = await pool.query(bookedInventoryQuery, [dateArray[i]]);
-
+                
                 bookedInventory[dateArray[i]] = rows;
-
+                
             }
         } else {
             const { rows } = await pool.query(bookedInventoryQuery, date);
-
+            
             bookedInventory[date] = rows;
         }
-
-
+        
+        
         const { rows: totalInventory } = await pool.query(totalInventoryQuery);
         const { rows: roomTypes } = await pool.query(roomTypeQuery);
 
