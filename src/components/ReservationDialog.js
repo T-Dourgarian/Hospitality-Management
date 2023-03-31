@@ -243,7 +243,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                 </Grid>
               </Grid>
               <Grid item xs={6}>
-                <Notes />
+                <Notes notes={reservationLocal.notes}/>
               </Grid>              
             </Grid>
 

@@ -23,8 +23,9 @@ router.get('/:type', async (req,res) => {
             queryText = 
             `
                 SELECT 
-                    reservation.*, 
+                    DISTINCT ON (reservation.id)
                     reservation.id as reservation_id,
+                    reservation.*, 
                     public."user".first_name as created_by_first_name, 
                     public."user".last_name as created_by_last_name, 
                     public."user".username as created_by_username, 
@@ -33,8 +34,15 @@ router.get('/:type', async (req,res) => {
                     room.number as room_number,
                     room.name as room_name,
                     room_status_type.name as room_status,
-                    room_status_type.name_short as room_status_short
-                FROM reservation
+                    room_status_type.name_short as room_status_short,
+                    (
+                        select array_to_json(array_agg(row(n)))
+                        from note n
+                        where n.reservation_id = reservation.id
+                    )   as notes
+                FROM
+                    reservation
+                LEFT join note ON note.reservation_id = reservation.id
                 JOIN guest ON reservation.guest_id = guest.id
                 JOIN room_type ON reservation.room_type_id = room_type.id
                 JOIN public."user" ON reservation.created_by = public."user".id
@@ -58,8 +66,9 @@ router.get('/:type', async (req,res) => {
             queryText=
             `
                 SELECT 
-                    reservation.*, 
+                    DISTINCT ON (reservation.id)
                     reservation.id as reservation_id,
+                    reservation.*, 
                     public."user".first_name as created_by_first_name, 
                     public."user".last_name as created_by_last_name, 
                     public."user".username as created_by_username, 
@@ -68,8 +77,15 @@ router.get('/:type', async (req,res) => {
                     room.number as room_number,
                     room.name as room_name,
                     room_status_type.name as room_status,
-                    room_status_type.name_short as room_status_short
-                FROM reservation
+                    room_status_type.name_short as room_status_short,
+                    (
+                        select array_to_json(array_agg(row(n)))
+                        from note n
+                        where n.reservation_id = reservation.id
+                    )   as notes
+                FROM 
+                    reservation
+                LEFT join note ON note.reservation_id = reservation.id
                 JOIN guest ON reservation.guest_id = guest.id
                 JOIN room_type ON reservation.room_type_id = room_type.id
                 JOIN public."user" ON reservation.created_by = public."user".id
@@ -90,25 +106,35 @@ router.get('/:type', async (req,res) => {
         } else if ( TYPE == 'inhouse') {
             queryText=
             `
-                SELECT 
-                    reservation.*, 
-                    reservation.id as reservation_id,
-                    public."user".first_name as created_by_first_name, 
-                    public."user".last_name as created_by_last_name, 
-                    public."user".username as created_by_username, 
-                    guest.*,
-                    room_type.*,
-                    room.number as room_number,
-                    room.name as room_name,
-                    room_status_type.name as room_status,
-                    room_status_type.name_short as room_status_short
-                FROM reservation
-                JOIN guest ON reservation.guest_id = guest.id
-                JOIN room_type ON reservation.room_type_id = room_type.id
-                JOIN public."user" ON reservation.created_by = public."user".id
-                FULL OUTER JOIN room ON reservation.room_id = room.id
-                FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
-                WHERE reservation.status = $1;
+            SELECT 
+                DISTINCT ON (reservation.id)
+                reservation.id as reservation_id,
+                reservation.*, 
+                public."user".first_name as created_by_first_name, 
+                public."user".last_name as created_by_last_name, 
+                public."user".username as created_by_username, 
+                guest.*,
+                room_type.*,
+                room.number as room_number,
+                room.name as room_name,
+                room_status_type.name as room_status,
+                room_status_type.name_short as room_status_short,
+                (
+                    select array_to_json(array_agg(row(n, guest)))
+                    from note n
+                    JOIN public."user" on note.created_by = public."user".id
+                    where n.reservation_id = reservation.id
+                )   as notes
+            FROM 
+                reservation
+            LEFT join note ON note.reservation_id = reservation.id
+            JOIN guest ON reservation.guest_id = guest.id
+            JOIN room_type ON reservation.room_type_id = room_type.id
+            JOIN public."user" ON reservation.created_by = public."user".id
+            FULL OUTER JOIN room ON reservation.room_id = room.id
+            FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
+            WHERE reservation.status = $1;
+    
             `
 
             pool.query(queryText,['checked_in'])
