@@ -36,8 +36,9 @@ router.get('/:type', async (req,res) => {
                     room_status_type.name as room_status,
                     room_status_type.name_short as room_status_short,
                     (
-                        select array_to_json(array_agg(row(n)))
+                        select array_to_json(array_agg(row(n, guest)))
                         from note n
+                        JOIN public."user" on note.created_by = public."user".id
                         where n.reservation_id = reservation.id
                     )   as notes
                 FROM
@@ -79,8 +80,9 @@ router.get('/:type', async (req,res) => {
                     room_status_type.name as room_status,
                     room_status_type.name_short as room_status_short,
                     (
-                        select array_to_json(array_agg(row(n)))
+                        select array_to_json(array_agg(row(n, guest)))
                         from note n
+                        JOIN public."user" on note.created_by = public."user".id
                         where n.reservation_id = reservation.id
                     )   as notes
                 FROM 
