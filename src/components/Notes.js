@@ -30,27 +30,44 @@ import RoomTypeForcast from './RoomTypeForcast';
 
 import RoomList from './RoomList';
 
-function Notes({ notes }) {
+function Notes({ notes, reservation_id }) {
 
 
 
     const [notesLocal, setNotesLocal] = useState(notes);
     const [createDialog, setCreateDialog] = useState(false);
-
+    const [noteText, setNoteText] = useState('')
 
     useEffect(() => {
-    // console.log('notes', notes);
+        console.log('notes', reservation_id);
     },[])
 
     const createDialogToggle = () => {
         setCreateDialog(!createDialog)
     }
       
+    const addNote = async () => {
+        try {
+
+            console.log(reservation_id)
+            if (noteText) {
+                let response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/notes/new`,{
+                    text: noteText,
+                    reservation_id
+                });
+
+                console.log(response.data)
+
+            }
+        } catch(error) {
+            console.log(error);
+        }
+    }
   
 
     return (
         <Grid container direction="column">
-            <Grid container justifyContent={'space-between'}>
+            <Grid container justifyContent={'space-between'} pb={1}>
                 <Grid item>
                     Notes
                 </Grid>
@@ -111,6 +128,7 @@ function Notes({ notes }) {
                         fullWidth
                         rows={3}
                         multiline
+                        onChange={(e) => setNoteText(e.target.value)}
                     />
                     
                 </DialogContent>
@@ -127,7 +145,7 @@ function Notes({ notes }) {
                         <Grid item px={2}>
                             <Button 
                                 variant='contained'
-                                onClick={createDialogToggle}
+                                onClick={addNote}
                             >Add +</Button>
                         </Grid>
                     </Grid>
