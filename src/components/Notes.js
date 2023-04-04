@@ -34,13 +34,21 @@ function Notes({ notes, reservation_id }) {
 
 
 
-    const [notesLocal, setNotesLocal] = useState(notes);
+    const [notesLocal, setNotesLocal] = useState(null);
     const [createDialog, setCreateDialog] = useState(false);
     const [noteText, setNoteText] = useState('')
 
     useEffect(() => {
-        console.log('notes', reservation_id);
-    },[])
+
+        if (notes) {
+            let sortedNotes = notes.sort((b,a)=> {
+                return new Date(a.f1.created_at).getTime() - new Date(b.f1.created_at).getTime() 
+            })
+    
+            setNotesLocal(sortedNotes);
+        }
+    }, []);
+
 
     const createDialogToggle = () => {
         setCreateDialog(!createDialog)
@@ -49,14 +57,12 @@ function Notes({ notes, reservation_id }) {
     const addNote = async () => {
         try {
 
-            console.log(reservation_id)
             if (noteText) {
-                let response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/notes/new`,{
+                await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/notes/new`,{
                     text: noteText,
                     reservation_id
                 });
 
-                console.log(response.data)
 
             }
         } catch(error) {
@@ -80,30 +86,40 @@ function Notes({ notes, reservation_id }) {
                     </Button>
                 </Grid>
             </Grid>
-            <Card variant="outlined">
-                <Grid container direction="column" pt={2}>
+            <Card variant="outlined"
+                sx={{
+                    height:'150px',
+                    overflowX:'hidden',
+                    overflowY:'scroll'
+                }}
+                
+            >
+                <Grid 
+                    container 
+                    direction="column"  
+                >
 
                     {
                         notesLocal && notesLocal.map(note => 
                             <Grid key={note.f1.id} item py={1} px={1} borderBottom='1px solid grey'>
                                 <Grid container direction="row" >
-                                    <Grid item xs={10}>
+                                    <Grid item xs={10} sx={{ fontSize: '12px'}}>
                                         { note.f1.text }
+                                        <Box 
+                                    
+                                            sx={{
+                                                fontSize:'12px',
+                                                color: 'grey',
+                                            }}
+                                        >
+                                            { note.f1.created_at.split('T')[0] + ' ' + (new Date(note.f1.created_at)).toLocaleTimeString()}
+                                        </Box>
                                     </Grid>
                                     <Grid item xs={2} textAlign='center'>
                                         <Box
                                             pb={1}
                                         >
                                             <Chip size="small" label={note.f2.last_name} variant="outlined" />
-                                        </Box>
-                                        <Box 
-                                            
-                                            sx={{
-                                                fontSize:'12px',
-                                                color: 'grey',
-                                            }}
-                                        >
-                                            { note.f1.created_at.split('T')[0] }
                                         </Box>
                                     </Grid>
                                 </Grid>

@@ -21,7 +21,6 @@ router.post('/new', async(req,res) => {
         
         pool.query(queryText,[reservation_id, text, 1, 1, new Date()])
             .then(result => {
-                console.log(result)
                 res.send(result.rows);
             })
             .catch(error => {
