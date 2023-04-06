@@ -68,6 +68,9 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                         {filteredReservations && filteredReservations.map( reservation => 
                             <TableRow
                                 key={reservation.reservation_id}
+                                onClick={() => {
+                                    console.log('asdf')
+                                }}
                             >
                                 <TableCell component="th" scope="row">
                                     { reservation.last_name }
