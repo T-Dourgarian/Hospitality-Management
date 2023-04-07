@@ -26,13 +26,23 @@ import ReservationTable from './ReservationsTable';
 function FrontDesk() {
 
 
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(0);
+
     const [arrivals, setArrivals] = useState([]);
     const [inHouse, setInHouse] = useState([]);
-    const [filteredInHouse, setFilteredInHouse] = useState([]);
     const [departures, setDepartures] = useState([]);
+
+    const [allFilteredReservations, setAllFilteredReservations] = useState([])
+    const [filteredReservations, setFilteredReservations] = useState([]);
+
+ 
+
+
+
     const [roomList, setRoomList] = useState([]);
     const [roomTypes, setRoomTypes] = useState([]);
+
+    const [resFocus, setResFocus] = useState(null);
 
 
     const handleChange = (event, newValue) => {
@@ -68,9 +78,7 @@ function FrontDesk() {
       const getInHouse = async () => {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/inhouse`);
 
-        console.log('asdf',response.data)
         setInHouse(response.data)
-        setFilteredInHouse(response.data)
       }
 
       const getDepartures = async () => {
@@ -82,7 +90,6 @@ function FrontDesk() {
       const getRoomList = async () => {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
         setRoomList(response.data)
-  
       }
 
       const getRoomTypeList = async () => {
@@ -100,31 +107,61 @@ function FrontDesk() {
       },[])
 
 
-      const filterInHouse = (search) => {
+      const filter = (search) => {
 
-        setFilteredInHouse(
-          inHouse.filter(res => res.last_name.toLowerCase().includes(search.toLowerCase()))
+        setFilteredReservations(
+          allFilteredReservations.filter(res => (
+            res.last_name.toLowerCase().includes(search.toLowerCase()) ||
+            `${res.reservation_id}`.includes(search)
+          ))
         )
+      }
+
+      useEffect(() => {
+        if (resFocus == 'arrivals') {
+          setAllFilteredReservations(arrivals);
+          setFilteredReservations(arrivals)
+        } else if (resFocus == 'inHouse') {
+          setAllFilteredReservations(inHouse)
+          setFilteredReservations(inHouse)
+        } else if (resFocus == 'departures' ) {
+          setAllFilteredReservations(departures)
+          setFilteredReservations(departures)
+        }
+
+      }, [resFocus])
+
+
+      const handleBlur = () => {
+        setFilteredReservations([]);
+        setResFocus(null);
       }
       
   
 
     return (
         <Grid container direction="column" spacing={2} pt={2}>
-            <Grid item width="100%">
+            <Grid item >
             
               <TextField 
                 id="outlined-basic" 
                 label="In House" 
                 variant="outlined" 
-                onChange={(e) => filterInHouse(e.target.value)}
+                onChange={(e) => filter(e.target.value)}
+                onFocus={() => setResFocus('inHouse')}
+                onBlur={() => handleBlur()}
               />
 
+
               {
-                filteredInHouse[0] && filteredInHouse.map(res => 
-                  <Box key={res.reservation_id}>{res.reservation_id}</Box>
-                )
-              }
+                resFocus && <ReservationTable  reservations={filteredReservations} roomList={roomList} roomTypes={roomTypes}/>
+              }        
+
+              <Box>
+                asdf
+              </Box>
+
+              
 
                 {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" >

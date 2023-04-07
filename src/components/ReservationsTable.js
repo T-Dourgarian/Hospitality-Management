@@ -37,17 +37,7 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
 
 
     return (
-        <Grid container direction="column" spacing={2} pt={4}>
-            <Grid item width="100%">
-                <TextField 
-                    id="standard-basic" 
-                    size="small"
-                    label="Last Name" 
-                    variant="outlined" 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
-            </Grid>
+        <Grid container direction="column" sx={{position: 'absolute !important', width:'83% !important'}}>
 
             <TableContainer component={Paper}>
                 <Table size="small" aria-label="simple table">
@@ -99,7 +89,7 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                                 <TableCell component="th" scope="row">
                                     {reservation.rate}
                                 </TableCell>
-                                <TableCell component="th" scope="row">
+                                {/* <TableCell component="th" scope="row">
 
                                     <ReservationDialog 
                                         reservation={reservation} 
@@ -109,7 +99,7 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                                         roomTypes={roomTypes} 
                                         buttonText={'open'} 
                                     />
-                                </TableCell>
+                                </TableCell> */}
                                 {/* <TableCell align="right">{calories}</TableCell> */}
                             </TableRow>
                         )}
