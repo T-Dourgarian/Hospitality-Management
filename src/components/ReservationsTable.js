@@ -16,13 +16,15 @@ import {
 
 // import { useSelector, useDispatch } from 'react-redux'
 
-import ReservationDialog from './ReservationDialog';
+import { useNavigate } from "react-router-dom";
 
 function ReservationTable({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
 
     const [filteredReservations, setFilteredReservations] = useState(reservations);
 
     const [lastName, setLastName] = useState('');
+
+    const navigate = useNavigate();
 
     useEffect( () => {
         setFilteredReservations(
@@ -35,6 +37,10 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
         setFilteredReservations(reservations);
     }, [reservations])
 
+    const handleNavigate = (reservation_id) => {
+        console.log(reservation_id)
+        navigate(`/frontdesk/${reservation_id}`)
+    }
 
     return (
         <Grid container direction="column" sx={{position: 'absolute !important', width:'83% !important'}}>
@@ -58,9 +64,7 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                         {filteredReservations && filteredReservations.map( reservation => 
                             <TableRow
                                 key={reservation.reservation_id}
-                                onClick={() => {
-                                    console.log('asdf')
-                                }}
+                                onClick={() => console.log('asdf')}
                             >
                                 <TableCell component="th" scope="row">
                                     { reservation.last_name }

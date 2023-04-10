@@ -22,6 +22,7 @@ import {
 
 import ReservationTable from './ReservationsTable';
 
+import { Routes, Route, useParams } from 'react-router-dom';
 
 function FrontDesk() {
 
@@ -35,7 +36,7 @@ function FrontDesk() {
     const [allFilteredReservations, setAllFilteredReservations] = useState([])
     const [filteredReservations, setFilteredReservations] = useState([]);
 
- 
+    let { reservation_id } = useParams();
 
 
 
@@ -133,7 +134,7 @@ function FrontDesk() {
 
 
       const handleBlur = () => {
-        setFilteredReservations([]);
+        // setFilteredReservations([]);
         setResFocus(null);
       }
       
@@ -157,9 +158,10 @@ function FrontDesk() {
                 resFocus && <ReservationTable  reservations={filteredReservations} roomList={roomList} roomTypes={roomTypes}/>
               }        
 
-              <Box>
-                asdf
-              </Box>
+              {/* {
+                  reservation_id && 
+                  <ReservationDialog />
+              } */}
 
               
 
