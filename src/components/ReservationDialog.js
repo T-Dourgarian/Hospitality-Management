@@ -4,6 +4,7 @@ import './ReservationDialog.css'
 import MMDD from '../utils/formatDate';
 import { 
     Button,
+    Box,
     Dialog ,
     DialogActions,
     DialogContent,
@@ -23,29 +24,33 @@ import PersonIcon from '@mui/icons-material/Person';
 import Notes from './Notes';
 import AssignRoom from './AssignRoom';
 
-function ReservationDialog({ reservation, getReservations, roomList, getRoomList, roomTypes, buttonText} ) {
+function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } ) {
     const [open, setOpen] = useState(false);
     const [checkInAlert, setCheckInAlert] = useState('');
-    const [reservationLocal, setReservationLocal] = useState(reservation);
     const [updateMade, setUpdateMade] = useState(false);
+    const [reservation, setReservation] = useState(null);
+    const [reservationLocal, setReservationLocal] = useState(null);
 
 
-    useEffect(( )=> {
-      console.log('reservation', reservation)
-    }, [])
+    const fetchReservationData = async () => {
+      try {
+        if (reservation_id) {
+          const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/single/${reservation_id}`);
 
-    const handleClickOpen = () => {
-      setOpen(true);
-    };
-  
-    const handleClose = () => {
-      setOpen(false);
+          setReservation(response.data);
+          setReservationLocal(response.data)
 
-      if (updateMade) {
-        getReservations();
-        getRoomList();
+        }
+      } catch(error) {
+        console.log(error);
       }
-    };
+    }
+
+    
+    useEffect(() => {
+      fetchReservationData();
+    }, [reservation_id])
+  
 
     const isCheckIn = (reservation) => {
       let checkIn = new Date(reservation.check_in);
@@ -73,7 +78,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
           checkInTime: currentTime
         })
 
-        console.log('response',response);
+
         
       } catch (error) {
         console.log(error);
@@ -91,7 +96,7 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
           checkOutTime: currentTime
         })
 
-        console.log('response',response);
+
         
       } catch (error) {
         console.log(error);
@@ -100,15 +105,10 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
 
      
     return (
-      <div>
-        <Button variant="outlined" onClick={handleClickOpen}>
-          {buttonText}
-        </Button>
-        <Dialog 
-          open={open} 
-          fullScreen
-        >
-          <DialogContent>
+      <Box>
+          {
+            reservation && 
+            <>
             <Grid container direction="row" spacing={6}>
               <Grid item xs={6}>
                 <Grid container direction="column" spacing={3}>
@@ -243,13 +243,13 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                 </Grid>
               </Grid>
               <Grid item xs={6}>
-                <Notes notes={reservationLocal.notes} reservation_id={reservation.reservation_id}/>
+                <Notes notes={reservationLocal.notes} reservation_id={reservationLocal.reservation_id}/>
               </Grid>              
             </Grid>
 
             
-          </DialogContent>
-          <DialogActions>
+          
+          
             <Grid container>
               
               
@@ -269,7 +269,6 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                       variant="contained"
                   > Check Out</Button>
               }
-              <Button onClick={handleClose}>Cancel</Button>
 
               {
                 <Typography>
@@ -277,9 +276,9 @@ function ReservationDialog({ reservation, getReservations, roomList, getRoomList
                 </Typography>
               }
             </Grid>
-          </DialogActions>
-        </Dialog>
-      </div>
+            </>
+          }
+      </Box>
     );
   }
   

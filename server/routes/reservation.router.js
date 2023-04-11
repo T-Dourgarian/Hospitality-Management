@@ -6,7 +6,7 @@ const pool = require('../pool')
 
 
 
-router.get('/:type', async (req,res) => {
+router.get('/list/:type', async (req,res) => {
     try {
 
         // arrivals, departures, inhouse
@@ -159,6 +159,61 @@ router.get('/:type', async (req,res) => {
             });
         }
 
+    
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
+
+router.get('/single/:reservation_id', async (req,res) => {
+    try {
+
+        const { reservation_id } = req.params;
+
+
+        const queryText = 
+        `
+        SELECT 
+            DISTINCT ON (reservation.id)
+            reservation.id as reservation_id,
+            reservation.*, 
+            public."user".first_name as created_by_first_name, 
+            public."user".last_name as created_by_last_name, 
+            public."user".username as created_by_username, 
+            guest.*,
+            room_type.*,
+            room.number as room_number,
+            room.name as room_name,
+            room_status_type.name as room_status,
+            room_status_type.name_short as room_status_short,
+            (
+                select array_to_json(array_agg(row(n, guest)))
+                from note n
+                JOIN public."user" on note.created_by = public."user".id
+                where n.reservation_id = reservation.id
+            )   as notes
+        FROM 
+            reservation
+        LEFT join note ON note.reservation_id = reservation.id
+        JOIN guest ON reservation.guest_id = guest.id
+        JOIN room_type ON reservation.room_type_id = room_type.id
+        JOIN public."user" ON reservation.created_by = public."user".id
+        FULL OUTER JOIN room ON reservation.room_id = room.id
+        FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
+        WHERE reservation.id = $1;
+        `
+        
+        pool.query(queryText, [reservation_id])
+        .then(result => {
+            res.send(result.rows[0]);
+        })
+        .catch(error => {
+            console.log(error);
+            res.sendStatus(500);
+        });
+        
     
     }catch(error) {
         console.log(error)

@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 
 import ReservationTable from './ReservationsTable';
+import ReservationDialog from './ReservationDialog';
 
 import { Routes, Route, useParams } from 'react-router-dom';
 
@@ -36,6 +37,8 @@ function FrontDesk() {
     const [allFilteredReservations, setAllFilteredReservations] = useState([])
     const [filteredReservations, setFilteredReservations] = useState([]);
 
+    const [selectedReservation, setSelectedReservation] = useState(null);
+
     let { reservation_id } = useParams();
 
 
@@ -46,44 +49,20 @@ function FrontDesk() {
     const [resFocus, setResFocus] = useState(null);
 
 
-    const handleChange = (event, newValue) => {
-      setValue(newValue);
-    };
-
-    function TabPanel(props) {
-        const { children, value, index, ...other } = props;
-      
-        return (
-          <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-          >
-            {value === index && (
-              <Box >
-                { children }
-              </Box>
-            )}
-          </div>
-        );
-      }
-
       const getArrivals = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/arrivals`);
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/list/arrivals`);
 
         setArrivals(response.data)
       }
 
       const getInHouse = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/inhouse`);
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/list/inhouse`);
 
         setInHouse(response.data)
       }
 
       const getDepartures = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/departures`);
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/list/departures`);
 
         setDepartures(response.data)
       }
@@ -131,12 +110,6 @@ function FrontDesk() {
         }
 
       }, [resFocus])
-
-
-      const handleBlur = () => {
-        // setFilteredReservations([]);
-        setResFocus(null);
-      }
       
   
 
@@ -150,37 +123,17 @@ function FrontDesk() {
                 variant="outlined" 
                 onChange={(e) => filter(e.target.value)}
                 onFocus={() => setResFocus('inHouse')}
-                onBlur={() => handleBlur()}
+                onBlur={() => setResFocus(null)}
               />
 
 
               {
-                resFocus && <ReservationTable  reservations={filteredReservations} roomList={roomList} roomTypes={roomTypes}/>
+                resFocus && <ReservationTable setFilteredReservations={setFilteredReservations} setResFocus={setResFocus} reservations={filteredReservations}/>
               }        
 
-              {/* {
-                  reservation_id && 
-                  <ReservationDialog />
-              } */}
+              <ReservationDialog reservation_id={reservation_id} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} />
 
-              
-
-                {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" >
-                      <Tab label="Arrivals" />
-                      <Tab label="In House"  />
-                      <Tab label="Departures"  />
-                    </Tabs>
-                </Box >
-                <TabPanel value={value} index={0}>
-                    <ReservationTable getReservations={getArrivals} reservations={arrivals} getRoomList={getRoomList} roomList={roomList} roomTypes={roomTypes}/>                    
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                    <ReservationTable getReservations={getInHouse} reservations={inHouse} getRoomList={getRoomList} roomList={roomList} roomTypes={roomTypes}/>
-                </TabPanel>
-                <TabPanel value={value} index={2}>
-                   <ReservationTable getReservations={getDepartures} reservations={departures} getRoomList={getRoomList} roomList={roomList} roomTypes={roomTypes}/>
-                </TabPanel> */}
+            
             </Grid>
         </Grid>
     );

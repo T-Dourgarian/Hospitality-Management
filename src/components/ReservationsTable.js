@@ -18,28 +18,17 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-function ReservationTable({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
+function ReservationTable({ reservations, setFilteredReservations, setResFocus  }) {
 
-    const [filteredReservations, setFilteredReservations] = useState(reservations);
-
-    const [lastName, setLastName] = useState('');
 
     const navigate = useNavigate();
 
-    useEffect( () => {
-        setFilteredReservations(
-            reservations.filter( res => res.last_name.toLowerCase().includes(lastName))
-        )
-    }, [lastName])
 
-
-    useEffect(() => {
-        setFilteredReservations(reservations);
-    }, [reservations])
 
     const handleNavigate = (reservation_id) => {
-        console.log(reservation_id)
         navigate(`/frontdesk/${reservation_id}`)
+        setFilteredReservations([]);
+        setResFocus(null);
     }
 
     return (
@@ -61,10 +50,10 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredReservations && filteredReservations.map( reservation => 
+                        {reservations && reservations.map( reservation => 
                             <TableRow
                                 key={reservation.reservation_id}
-                                onClick={() => console.log('asdf')}
+                                onMouseDown={() => handleNavigate(reservation.reservation_id)}
                             >
                                 <TableCell component="th" scope="row">
                                     { reservation.last_name }
@@ -93,18 +82,6 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                                 <TableCell component="th" scope="row">
                                     {reservation.rate}
                                 </TableCell>
-                                {/* <TableCell component="th" scope="row">
-
-                                    <ReservationDialog 
-                                        reservation={reservation} 
-                                        getReservations={getReservations} 
-                                        roomList={roomList} 
-                                        getRoomList={getRoomList}
-                                        roomTypes={roomTypes} 
-                                        buttonText={'open'} 
-                                    />
-                                </TableCell> */}
-                                {/* <TableCell align="right">{calories}</TableCell> */}
                             </TableRow>
                         )}
                     </TableBody>

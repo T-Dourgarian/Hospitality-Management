@@ -26,9 +26,7 @@ import {
     Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import RoomTypeForcast from './RoomTypeForcast';
 
-import RoomList from './RoomList';
 
 function Notes({ notes, reservation_id }) {
 
@@ -46,8 +44,11 @@ function Notes({ notes, reservation_id }) {
             })
     
             setNotesLocal(sortedNotes);
+        } else {
+            setNotesLocal(notes);
         }
-    }, []);
+
+    }, [reservation_id]);
 
 
     const createDialogToggle = () => {
