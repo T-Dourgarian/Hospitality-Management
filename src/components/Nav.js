@@ -26,7 +26,7 @@ function Nav() {
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
-            <Grid item xs={2}>
+            <Grid item xs={2} borderRight={'1px solid grey '} height={'100vh'}>
                 <List>
                     {['Front Desk', 'Room Management'].map((text, index) => (
                         <ListItem 

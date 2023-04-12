@@ -5,6 +5,11 @@ import {
     Autocomplete,
     Button,
     Grid,
+    Radio,
+    RadioGroup,
+    FormLabel,
+    FormControlLabel,
+    FormControl,
     Paper,
     TableRow,
     TableHead,
@@ -33,21 +38,14 @@ function FrontDesk() {
     const [arrivals, setArrivals] = useState([]);
     const [inHouse, setInHouse] = useState([]);
     const [departures, setDepartures] = useState([]);
-
-    const [allFilteredReservations, setAllFilteredReservations] = useState([])
+    const [allFilteredReservations, setAllFilteredReservations] = useState([]);
     const [filteredReservations, setFilteredReservations] = useState([]);
-
-    const [selectedReservation, setSelectedReservation] = useState(null);
-
-    let { reservation_id } = useParams();
-
-
-
     const [roomList, setRoomList] = useState([]);
     const [roomTypes, setRoomTypes] = useState([]);
-
-    const [resFocus, setResFocus] = useState(null);
-
+    const [resFocus, setResFocus] = useState('inHouse');
+    const [showTable, setShowTable] = useState(false);
+    
+    let { reservation_id } = useParams();
 
       const getArrivals = async () => {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/list/arrivals`);
@@ -59,6 +57,7 @@ function FrontDesk() {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/list/inhouse`);
 
         setInHouse(response.data)
+        setFilteredReservations(response.data)
       }
 
       const getDepartures = async () => {
@@ -98,37 +97,70 @@ function FrontDesk() {
       }
 
       useEffect(() => {
+
         if (resFocus == 'arrivals') {
           setAllFilteredReservations(arrivals);
-          setFilteredReservations(arrivals)
+          setFilteredReservations(arrivals);
         } else if (resFocus == 'inHouse') {
           setAllFilteredReservations(inHouse)
-          setFilteredReservations(inHouse)
+          setFilteredReservations(inHouse);
         } else if (resFocus == 'departures' ) {
           setAllFilteredReservations(departures)
-          setFilteredReservations(departures)
+          setFilteredReservations(departures);
         }
 
       }, [resFocus])
       
-  
+
 
     return (
         <Grid container direction="column" spacing={2} pt={2}>
-            <Grid item >
-            
-              <TextField 
-                id="outlined-basic" 
-                label="In House" 
-                variant="outlined" 
-                onChange={(e) => filter(e.target.value)}
-                onFocus={() => setResFocus('inHouse')}
-                onBlur={() => setResFocus(null)}
-              />
+            <Grid 
+              item 
+            >
+
+
+              <Grid 
+                container
+                alignItems="center"
+                sx={{
+                  padding: '0 0 10px 0'
+                }}
+              >
+                
+                  <Grid item>
+                    <TextField 
+                      id="outlined-basic" 
+                      label="Search" 
+                      variant="outlined" 
+                      onChange={(e) => filter(e.target.value)}
+                      onFocus={() => setShowTable(true)}
+                      onBlur={() => setShowTable(false)}
+                    />
+                  </Grid>
+
+
+                  <Grid item pl={2}>
+                    <FormControl>
+                      <RadioGroup
+                          aria-labelledby="demo-radio-buttons-group-label"
+                          value={resFocus}
+                          onChange={(e) => setResFocus(e.target.value)}
+                          name="radio-buttons-group"
+                          row
+                      >
+                          <FormControlLabel value="arrivals" control={<Radio />} label="Arrivals" />
+                          <FormControlLabel value="inHouse" control={<Radio />} label="In House" />
+                          <FormControlLabel value="departures" control={<Radio />} label="Departures" />
+                      </RadioGroup>
+                    </FormControl>
+                  </Grid>
+                  
+              </Grid>
 
 
               {
-                resFocus && <ReservationTable setFilteredReservations={setFilteredReservations} setResFocus={setResFocus} reservations={filteredReservations}/>
+                showTable && <ReservationTable setFilteredReservations={setFilteredReservations} setShowTable={setShowTable} reservations={filteredReservations}/>
               }        
 
               <ReservationDialog reservation_id={reservation_id} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} />

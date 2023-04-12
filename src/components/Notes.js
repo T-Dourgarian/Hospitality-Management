@@ -82,6 +82,7 @@ function Notes({ notes, reservation_id }) {
                     <Button
                         variant="contained"
                         onClick={createDialogToggle}
+                        sx={{ zIndex: '0 !important'}}
                     >
                         <AddIcon />
                     </Button>

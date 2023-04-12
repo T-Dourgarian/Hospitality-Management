@@ -18,7 +18,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-function ReservationTable({ reservations, setFilteredReservations, setResFocus  }) {
+function ReservationTable({ reservations, setShowTable  }) {
 
 
     const navigate = useNavigate();
@@ -27,12 +27,12 @@ function ReservationTable({ reservations, setFilteredReservations, setResFocus  
 
     const handleNavigate = (reservation_id) => {
         navigate(`/frontdesk/${reservation_id}`)
-        setFilteredReservations([]);
-        setResFocus(null);
+        setShowTable(false);
     }
 
     return (
-        <Grid container direction="column" sx={{position: 'absolute !important', width:'83% !important'}}>
+        <Grid container direction="column" sx={{position: 'absolute !important', width:'83% !important', backgroundColor: 'white'}}>
+
 
             <TableContainer component={Paper}>
                 <Table size="small" aria-label="simple table">
@@ -86,7 +86,13 @@ function ReservationTable({ reservations, setFilteredReservations, setResFocus  
                         )}
                     </TableBody>
                 </Table>
+
+                <Button onClick={() => setShowTable(false)}>
+                    Close
+                </Button>
             </TableContainer>
+
+
         </Grid>
     );
   }
