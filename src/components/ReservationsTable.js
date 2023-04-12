@@ -16,38 +16,23 @@ import {
 
 // import { useSelector, useDispatch } from 'react-redux'
 
-import ReservationDialog from './ReservationDialog';
+import { useNavigate } from "react-router-dom";
 
-function ReservationTable({ reservations, getReservations, roomList, getRoomList, roomTypes={roomTypes} }) {
-
-    const [filteredReservations, setFilteredReservations] = useState(reservations);
-
-    const [lastName, setLastName] = useState('');
-
-    useEffect( () => {
-        setFilteredReservations(
-            reservations.filter( res => res.last_name.toLowerCase().includes(lastName))
-        )
-    }, [lastName])
+function ReservationTable({ reservations, setShowTable  }) {
 
 
-    useEffect(() => {
-        setFilteredReservations(reservations);
-    }, [reservations])
+    const navigate = useNavigate();
 
+
+
+    const handleNavigate = (reservation_id) => {
+        navigate(`/frontdesk/${reservation_id}`)
+        setShowTable(false);
+    }
 
     return (
-        <Grid container direction="column" spacing={2} pt={4}>
-            <Grid item width="100%">
-                <TextField 
-                    id="standard-basic" 
-                    size="small"
-                    label="Last Name" 
-                    variant="outlined" 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
-            </Grid>
+        <Grid container direction="column" sx={{position: 'absolute !important', width:'85% !important', backgroundColor: 'white', zIndex:'99'}}>
+
 
             <TableContainer component={Paper}>
                 <Table size="small" aria-label="simple table">
@@ -65,9 +50,10 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredReservations && filteredReservations.map( reservation => 
+                        {reservations && reservations.map( reservation => 
                             <TableRow
                                 key={reservation.reservation_id}
+                                onMouseDown={() => handleNavigate(reservation.reservation_id)}
                             >
                                 <TableCell component="th" scope="row">
                                     { reservation.last_name }
@@ -96,23 +82,17 @@ function ReservationTable({ reservations, getReservations, roomList, getRoomList
                                 <TableCell component="th" scope="row">
                                     {reservation.rate}
                                 </TableCell>
-                                <TableCell component="th" scope="row">
-
-                                    <ReservationDialog 
-                                        reservation={reservation} 
-                                        getReservations={getReservations} 
-                                        roomList={roomList} 
-                                        getRoomList={getRoomList}
-                                        roomTypes={roomTypes} 
-                                        buttonText={'open'} 
-                                    />
-                                </TableCell>
-                                {/* <TableCell align="right">{calories}</TableCell> */}
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
+
+                <Button onClick={() => setShowTable(false)}>
+                    Close
+                </Button>
             </TableContainer>
+
+
         </Grid>
     );
   }

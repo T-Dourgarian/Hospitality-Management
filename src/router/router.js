@@ -15,6 +15,10 @@ const router = createBrowserRouter([
         element: <FrontDesk />,
     },
     {
+        path: "frontdesk/:reservation_id",
+        element: <FrontDesk />,
+    },
+    {
         path: "roommanagement",
         element: <RoomManagement />,
     },

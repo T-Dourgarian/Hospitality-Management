@@ -68,10 +68,10 @@ function FrontDesk() {
                     </Tabs>
                 </Box >
                 <TabPanel value={value} index={0}>
-                    <RoomTypeForcast />                    
+                    <RoomList />                    
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    <RoomList />                    
+                    <RoomTypeForcast />                    
                 </TabPanel>
             </Grid>
         </Grid>
