@@ -123,9 +123,7 @@ function FrontDesk() {
               <Grid 
                 container
                 alignItems="center"
-                sx={{
-                  padding: '0 0 10px 0'
-                }}
+                
               >
                 
                   <Grid item>
