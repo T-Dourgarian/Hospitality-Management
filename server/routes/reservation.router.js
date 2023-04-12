@@ -19,7 +19,7 @@ router.get('/list/:type', async (req,res) => {
         // still need to adjust query -> WHERE property.id = X
         let queryText = ``;
        
-        if (TYPE == 'arrivals') {
+        if (TYPE === 'arrivals') {
             queryText = 
             `
                 SELECT 
@@ -62,7 +62,7 @@ router.get('/list/:type', async (req,res) => {
                     console.log(error);
                     res.sendStatus(500);
                 });
-        } else if ( TYPE == 'departures') {
+        } else if ( TYPE === 'departures') {
 
             queryText=
             `
@@ -105,7 +105,7 @@ router.get('/list/:type', async (req,res) => {
                 res.sendStatus(500);
             });
 
-        } else if ( TYPE == 'inhouse') {
+        } else if ( TYPE === 'inhouse') {
             queryText=
             `
             SELECT 
@@ -193,7 +193,13 @@ router.get('/single/:reservation_id', async (req,res) => {
                 from note n
                 JOIN public."user" on note.created_by = public."user".id
                 where n.reservation_id = reservation.id
-            )   as notes
+            )   as notes,
+            (
+                select array_to_json(array_agg(row(a, at)))
+                from additional a
+                JOIN additional_type at on at.id = additional_type_id
+                where a.reservation_id = reservation.id
+            )   as additionals
         FROM 
             reservation
         LEFT join note ON note.reservation_id = reservation.id

@@ -31,7 +31,7 @@ function ReservationTable({ reservations, setShowTable  }) {
     }
 
     return (
-        <Grid container direction="column" sx={{position: 'absolute !important', width:'85% !important', backgroundColor: 'white', zIndex:'99'}}>
+        <Grid container direction="column" sx={{position: 'absolute !important', width:'83% !important', backgroundColor: 'white', zIndex:'99'}}>
 
 
             <TableContainer component={Paper}>

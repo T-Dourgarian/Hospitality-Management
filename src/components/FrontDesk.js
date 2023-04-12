@@ -123,7 +123,10 @@ function FrontDesk() {
               <Grid 
                 container
                 alignItems="center"
-                
+                pb={1}
+                sx={{
+                  borderBottom: '1px solid grey'
+                }}
               >
                 
                   <Grid item>
@@ -131,6 +134,7 @@ function FrontDesk() {
                       id="outlined-basic" 
                       label="Search" 
                       variant="outlined" 
+                      size="small"
                       onChange={(e) => filter(e.target.value)}
                       onFocus={() => setShowTable(true)}
                       onBlur={() => setShowTable(false)}

@@ -74,7 +74,7 @@ function Notes({ notes, reservation_id }) {
 
     return (
         <Grid container direction="column">
-            <Grid container justifyContent={'space-between'} pb={1}>
+            <Grid container justifyContent={'space-between'} pb={1} alignItems="center">
                 <Grid item>
                     Notes
                 </Grid>
@@ -83,6 +83,7 @@ function Notes({ notes, reservation_id }) {
                         variant="contained"
                         onClick={createDialogToggle}
                         sx={{ zIndex: '0 !important'}}
+                        size="small"
                     >
                         <AddIcon />
                     </Button>

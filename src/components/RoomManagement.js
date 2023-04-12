@@ -50,11 +50,6 @@ function FrontDesk() {
           </div>
         );
       }
-
-
-      useEffect(() => {
-
-      },[])
       
   
 
