@@ -246,13 +246,13 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                 </Grid>
               </Grid>
               <Grid item xs={6}>
-                <Grid container column>
-                  <Grid item pb={2}>
+                <Grid container  direction="column">
+                  <Grid item pb={1}>
                     <Notes notes={reservationLocal.notes} reservation_id={reservationLocal.reservation_id}/>
                   </Grid>
 
                 
-                  <Grid item width={'100%'}>
+                  <Grid item >
                     <Additionals additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id}/>
                   </Grid>
                 </Grid>

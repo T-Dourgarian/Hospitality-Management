@@ -104,9 +104,20 @@ function Notes({ notes, reservation_id }) {
 
                     {
                         notesLocal && notesLocal.map(note => 
-                            <Grid key={note.f1.id} item py={1} px={1} borderBottom='1px solid grey'>
-                                <Grid container direction="row" >
-                                    <Grid item xs={10} sx={{ fontSize: '12px'}}>
+                            <Grid key={note.f1.id} item py={1} px={1}
+                                sx={{
+                                    backgroundColor: '#ededed',
+                                    borderRadius:'5px'
+                                }}
+                                mx={1}
+                                mt={1}
+                            >
+                                <Grid container direction="row"  alignItems='center'>
+                                    <Grid item xs={10} 
+                                        sx={{ 
+                                            fontSize: '12px',
+                                        }}
+                                    >
                                         { note.f1.text }
                                         <Box 
                                     
@@ -118,9 +129,9 @@ function Notes({ notes, reservation_id }) {
                                             { note.f1.created_at.split('T')[0] + ' ' + (new Date(note.f1.created_at)).toLocaleTimeString()}
                                         </Box>
                                     </Grid>
-                                    <Grid item xs={2} textAlign='center'>
+                                    <Grid item xs={2}>
                                         <Box
-                                            pb={1}
+                                            
                                         >
                                             <Chip size="small" label={note.f2.last_name} variant="outlined" />
                                         </Box>
