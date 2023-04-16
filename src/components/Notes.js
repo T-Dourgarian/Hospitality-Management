@@ -89,7 +89,8 @@ function Notes({ notes, reservation_id }) {
                     </Button>
                 </Grid>
             </Grid>
-            <Card variant="outlined"
+            <Card 
+                variant="outlined"
                 sx={{
                     height:'150px',
                     overflowX:'hidden',

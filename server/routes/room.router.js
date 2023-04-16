@@ -186,11 +186,12 @@ router.post('/inventory', async(req,res) => {
 
 
 router.post('/assign', async(req,res) => {
+    const client = await pool.connect();
+    
     try {
 
         const { room_id, reservation_id, room_type_id } = req.body;
 
-        const client = await pool.connect();
 
         await client.query('BEGIN;')
 
@@ -248,6 +249,7 @@ router.post('/assign', async(req,res) => {
         res.sendStatus(200);
 
     }catch(error) {
+        await client.query('ROLLBACK');
         console.log(error)
         res.sendStatus(400);
     }

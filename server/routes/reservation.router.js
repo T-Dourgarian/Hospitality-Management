@@ -199,7 +199,19 @@ router.get('/single/:reservation_id', async (req,res) => {
                 from additional a
                 JOIN additional_type at on at.id = additional_type_id
                 where a.reservation_id = reservation.id
-            )   as additionals
+            )   as additionals,
+            (
+                select array_to_json(array_agg(row(t, tt)))
+                from txns t
+                JOIN txns_type tt on t.txns_type_id = tt.id
+                where t.reservation_id = reservation.id
+            )   as transactions,
+            (
+                select array_to_json(array_agg(row(i, it)))
+                from invoice i
+                JOIN invoice_type it on i.invoice_type_id = it.id
+                where i.reservation_id = reservation.id
+            )   as invoices
         FROM 
             reservation
         LEFT join note ON note.reservation_id = reservation.id
