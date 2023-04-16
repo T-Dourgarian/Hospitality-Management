@@ -6,12 +6,20 @@ import {
     Button,
     Grid,
     Card,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    OutlinedInput,
+    InputAdornment,
+    InputLabel,
     Radio,
     RadioGroup,
     FormLabel,
     FormControlLabel,
     FormControl,
+    MenuItem,
     Paper,
+    Select,
     TableRow,
     TableHead,
     TableContainer,
@@ -31,9 +39,45 @@ import ReservationDialog from './ReservationDialog';
 
 import AddIcon from '@mui/icons-material/Add';
 
-function Additionals({ additionals, reservation_id }) {
+function Additionals({ additionals, reservation_id, reservation }) {
       
     const [localAdditionals, setLocalAdditionals] = useState(null);
+
+    const [createDialog, setCreateDialog] = useState(false);
+
+    const [additionalTypes, setAdditionalTypes] = useState(null);
+
+    const [selectedAdditional, setSelectedAdditional] = useState('');
+    const [newAdditionalType, setNewAdditionalType] = useState('');
+    const [newAdditionalRate, setNewAdditionalRate] = useState('')
+
+
+    const handleAdditionalSelect = (e) => {
+
+        setNewAdditionalType(e.target.value.name);
+        setSelectedAdditional(e.target.value)
+        setNewAdditionalRate(e.target.value.rate)
+    }
+
+
+
+
+    const fetchAdditionalTypes = async() => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/additional/types`);
+
+            console.log(response.data)
+
+            setAdditionalTypes(response.data);
+
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
+    const createDialogToggle = () => {
+        setCreateDialog(!createDialog);
+    }
 
     const numberOfNights = (date1, date2) => {
         let start = new Date(date1);
@@ -47,7 +91,8 @@ function Additionals({ additionals, reservation_id }) {
 
 
     useEffect(() => {
-        setLocalAdditionals(additionals)
+        fetchAdditionalTypes();
+        setLocalAdditionals(additionals);
     },[reservation_id])
 
     return (
@@ -65,6 +110,7 @@ function Additionals({ additionals, reservation_id }) {
                                 // onClick={createDialogToggle}
                                 sx={{ zIndex: '0 !important'}}
                                 size="small"
+                                onClick={createDialogToggle}
                             >
                                 <AddIcon />
                             </Button>
@@ -123,7 +169,110 @@ function Additionals({ additionals, reservation_id }) {
             </Grid>
 
 
+            <Dialog 
+                open={createDialog} 
+                onClose={createDialogToggle}
+                fullWidth
+            >
                 
+                <DialogContent >
+                    <TableContainer component={Paper}>
+                        <Table size="small" aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Type</TableCell>
+                                    <TableCell>Price</TableCell>
+                                    <TableCell>Start Date</TableCell>
+                                    <TableCell>End Date</TableCell>
+                                    <TableCell>Total Posts</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                            {
+                                localAdditionals && localAdditionals.map(a => 
+                                    <TableRow
+                                        key={a.f1.id}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            { a.f2.name }
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            { a.f1.price_actual }
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            { a.f1.start_date.split('T')[0] }
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            { a.f1.end_date.split('T')[0] }
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            { numberOfNights(a.f1.start_date, a.f1.end_date) }
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+
+                    <Box py={2} sx={{ fontSize: '17px !important', fontWeight: 'bold'}}>
+                        New Additional
+                    </Box>
+
+                    <Grid container direction="column" spacing={2}>
+                        <Grid item>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Type</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={selectedAdditional}
+                                    label="Age"
+                                    onChange={(e) => handleAdditionalSelect(e)}
+                                    >
+                                    {
+                                        additionalTypes && additionalTypes.map(a => <MenuItem key={a.id} value={a}> { a.name } </MenuItem>)
+                                    }
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item>
+                            <FormControl fullWidth >
+                                <InputLabel htmlFor="outlined-adornment-amount">Price</InputLabel>
+                                <OutlinedInput
+                                    id="outlined-adornment-amount"
+                                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                    label="Amount"
+                                    value={newAdditionalRate}
+                                    onChange={(e) => setNewAdditionalRate(e.target.value)}
+                                />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent={'space-between'}>
+                    
+                        <Grid item px={2}>
+                            <Button 
+                                variant='outlined'
+                                onClick={createDialogToggle}
+                            >Cancel</Button>
+                        </Grid>
+
+                        <Grid item px={2}>
+                            <Button 
+                                variant='contained'
+                                // onClick={add}
+                            >Add +</Button>
+                        </Grid>
+                    </Grid>
+                </DialogActions>
+            </Dialog>
+
             
         </Box>
     );
