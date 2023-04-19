@@ -12,6 +12,7 @@ import {
     OutlinedInput,
     InputAdornment,
     InputLabel,
+    IconButton,
     Radio,
     RadioGroup,
     FormLabel,
@@ -43,23 +44,21 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import dayjs from 'dayjs';
 
-function Additionals({ additionals, reservation_id, reservation }) {
-      
+
+
+function Additionals({ additionals, reservation_id, reservation }) { 
+
     const [localAdditionals, setLocalAdditionals] = useState(null);
-
     const [createDialog, setCreateDialog] = useState(false);
-
     const [additionalTypes, setAdditionalTypes] = useState(null);
-
-    const [selectedAdditional, setSelectedAdditional] = useState('');
-    const [newAdditionalType, setNewAdditionalType] = useState('');
-    const [newAdditionalRate, setNewAdditionalRate] = useState('')
-
-    const [newAdditionalFolio, setNewAdditionalFolio] = useState('');
-
-    const [firstPostDate, setFirstPostDate] = useState(() => {
+    const [type, setType] = useState('');
+    const [rate, setRate] = useState('')
+    const [folio, setFolio] = useState('');
+    const [startDate, setStartDate] = useState(() => {
         const check_in = new Date(reservation.check_in)
         const today = new Date();
 
@@ -69,20 +68,31 @@ function Additionals({ additionals, reservation_id, reservation }) {
 
         return dayjs(check_in);
     });
+    const [endDate, setEndDate] = useState(dayjs(reservation.check_out));
+    const [updateMode, setUpdateMode] = useState(false);
+    const [selectedAdditional, setSelectedAdditional] = useState('');
 
-    const [lastPostDate, setLastPostDate] = useState(dayjs(reservation.check_out));
 
+    const handleSelectAdditional = (a) => {
 
-    const handleAdditionalSelect = (e) => {
-
-        setNewAdditionalType(e.target.value.name);
-        setSelectedAdditional(e.target.value)
-        setNewAdditionalRate(e.target.value.rate)
+        setUpdateMode(true);
+        setSelectedAdditional(a.f1);
+        setType(a.f2.id)
+        setRate(a.f1.price)
+        setStartDate(dayjs(a.f1.start_date))
+        setEndDate(dayjs(a.f1.end_date));
+        setFolio(a.f3.invoice_type_id)
     }
 
 
-    const handleAdditionalFolioSelect = (e) => {
-        setNewAdditionalFolio(e)
+    const saveAdditional = async () => {
+        
+    }
+
+    const handleTypeSelect = (e) => {
+        setType(e.target.value);
+
+        setRate(additionalTypes.find(at => at.id == e.target.value).rate)
     }
 
 
@@ -172,7 +182,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                                 { a.f2.name }
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                { a.f1.price_actual }
+                                                { a.f1.price }
                                             </TableCell>
                                             <TableCell component="th" scope="row">
                                                 { a.f1.start_date.split('T')[0] }
@@ -210,6 +220,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     <TableCell>Start Date</TableCell>
                                     <TableCell>End Date</TableCell>
                                     <TableCell>Total Posts</TableCell>
+                                    <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -217,12 +228,14 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                 localAdditionals && localAdditionals.map(a => 
                                     <TableRow
                                         key={a.f1.id}
+                                        hover
+                                        onClick={() => handleSelectAdditional(a)}
                                     >
                                         <TableCell component="th" scope="row">
                                             { a.f2.name }
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            { a.f1.price_actual }
+                                            { a.f1.price }
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             { a.f1.start_date.split('T')[0] }
@@ -233,6 +246,14 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                         <TableCell component="th" scope="row">
                                             { numberOfNights(a.f1.start_date, a.f1.end_date) }
                                         </TableCell>
+                                        <TableCell component="th" scope="row">
+
+                                            <IconButton>
+                                                <DeleteIcon sx={{color: 'red !important'}} onClick={() => console.log('sdf')}/>
+                                            </IconButton>
+                                                
+                                            
+                                        </TableCell>
                                     </TableRow>
                                 )
                             }
@@ -241,9 +262,25 @@ function Additionals({ additionals, reservation_id, reservation }) {
                     </TableContainer>
 
 
-                    <Box py={2} sx={{ fontSize: '17px !important', fontWeight: 'bold'}}>
-                        New Additional
-                    </Box>
+                    <Grid container justifyContent={'space-between'} alignItems={'center'}  sx={{ fontSize: '17px !important', fontWeight: 'bold', height:'50px'}}>
+                        <Grid item>
+                            {
+                                updateMode ? 
+                                'Update Additional':
+                                'New Additional'
+                            }
+                        </Grid>
+                        {
+                            updateMode &&
+                            <Grid item>
+                                <Button
+                                    variant='contained'
+                                    size="small"
+                                    onClick={() => setUpdateMode(false)}
+                                >New -{'>'}</Button>
+                            </Grid>
+                        }
+                    </Grid>
 
                     <Grid container direction="column" spacing={2}>
                         <Grid item>
@@ -251,13 +288,14 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                 <InputLabel id="demo-simple-select-label">Type</InputLabel>
                                 <Select
                                     labelId="demo-simple-select-label"
+                                    disabled={updateMode}
                                     id="demo-simple-select"
-                                    value={selectedAdditional}
+                                    value={type}
                                     label="Age"
-                                    onChange={(e) => handleAdditionalSelect(e)}
+                                    onChange={(e) => handleTypeSelect(e)}
                                     >
                                     {
-                                        additionalTypes && additionalTypes.map(a => <MenuItem key={a.id} value={a}> { a.name } </MenuItem>)
+                                        additionalTypes && additionalTypes.map(a => <MenuItem key={a.id} value={a.id}> { a.name } </MenuItem>)
                                     }
                                 </Select>
                             </FormControl>
@@ -270,8 +308,8 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     id="outlined-adornment-amount"
                                     startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                     label="Amount"
-                                    value={newAdditionalRate}
-                                    onChange={(e) => setNewAdditionalRate(e.target.value)}
+                                    value={rate}
+                                    onChange={(e) => setRate(e.target.value)}
                                 />
                             </FormControl>
                         </Grid>
@@ -283,8 +321,8 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DatePicker 
                                             label="Start Date"
-                                            value={firstPostDate}
-                                            onChange={(newValue) => setFirstPostDate(newValue)}
+                                            value={startDate}
+                                            onChange={(newValue) => setStartDate(newValue)}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -292,8 +330,8 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DatePicker 
                                             label="End Date"
-                                            value={lastPostDate}
-                                            onChange={(newValue) => setLastPostDate(newValue)}
+                                            value={endDate}
+                                            onChange={(newValue) => setEndDate(newValue)}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -307,13 +345,14 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                 <InputLabel id="demo-simple-select-label">Folio</InputLabel>
                                 <Select
                                     labelId="demo-simple-select-label"
+                                    disabled={updateMode}
                                     id="demo-simple-select"
-                                    value={newAdditionalFolio}
+                                    value={folio}
                                     label="Folio"
-                                    onChange={(e) => handleAdditionalFolioSelect(e.target.value)}
+                                    onChange={(e) => setFolio(e.target.value)}
                                     >
                                     {
-                                        reservation.invoices && reservation.invoices.map(i => <MenuItem key={i.f2.id} value={i.f1}> { i.f2.type } </MenuItem>)
+                                        reservation.invoices && reservation.invoices.map(i => <MenuItem key={i.f2.id} value={i.f2.id}> { i.f2.type } </MenuItem>)
                                     }
                                 </Select>
                             </FormControl>
@@ -334,10 +373,17 @@ function Additionals({ additionals, reservation_id, reservation }) {
                         </Grid>
 
                         <Grid item px={2}>
-                            <Button 
-                                variant='contained'
-                                // onClick={add}
-                            >Add +</Button>
+                            {
+                                updateMode ?
+                                <Button 
+                                    variant='contained'
+                                    onClick={saveAdditional}
+                                >save</Button>:
+                                <Button 
+                                    variant='contained'
+                                    onClick={saveAdditional}
+                                >Add</Button>
+                            }
                         </Grid>
                     </Grid>
                 </DialogActions>

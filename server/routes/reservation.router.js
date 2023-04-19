@@ -177,9 +177,10 @@ router.get('/single/:reservation_id', async (req,res) => {
                 where n.reservation_id = reservation.id
             )   as notes,
             (
-                select array_to_json(array_agg(row(a, at)))
+                select array_to_json(array_agg(row(a, at, i)))
                 from additional a
                 JOIN additional_type at on at.id = additional_type_id
+                JOIN invoice i on a.invoice_id = i.id
                 where a.reservation_id = reservation.id
             )   as additionals,
             (

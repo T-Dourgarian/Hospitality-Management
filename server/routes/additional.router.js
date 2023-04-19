@@ -12,7 +12,7 @@ router.post('/post', async (req, res) => {
 
       const queryText = `
         INSERT INTO public.additional(
-        reservation_id, additional_type_id, end_date, start_date, price_actual)
+        reservation_id, additional_type_id, end_date, start_date, price)
         VALUES ($1, $2, $3, $4, $5);
       `
 
@@ -24,6 +24,31 @@ router.post('/post', async (req, res) => {
     } catch (err) {
       console.error(err);
       res.status(400).json({ success: false, message: 'Additional could not be created' });
+    }
+});
+
+router.put('/update', async (req, res) => {
+    try {
+      const { additional_id, price, start_date, end_date } = req.body;
+
+      const queryText = `
+        UPDATE additional
+        SET 
+            start_date = $1,
+            end_date = $2,
+            price = $3,
+        WHERE
+            id = $4;
+      `
+
+
+      await pool.query(queryText, [ start_date, end_date, price, additional_id ]);
+
+      res.send(200).json({ success: true, message: 'Additional has been updated' });
+      
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ success: false, message: 'Additional could not be updated' });
     }
 });
 
