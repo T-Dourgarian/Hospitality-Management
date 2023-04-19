@@ -39,7 +39,6 @@ router.get('/list/:type', async (req,res) => {
                     room_status_type.name_short as room_status_short
                 FROM
                     reservation
-                LEFT join note ON note.reservation_id = reservation.id
                 JOIN guest ON reservation.guest_id = guest.id
                 JOIN room_type ON reservation.room_type_id = room_type.id
                 FULL OUTER JOIN room ON reservation.room_id = room.id
@@ -78,10 +77,8 @@ router.get('/list/:type', async (req,res) => {
                     room_status_type.name_short as room_status_short
                 FROM 
                     reservation
-                LEFT join note ON note.reservation_id = reservation.id
                 JOIN guest ON reservation.guest_id = guest.id
                 JOIN room_type ON reservation.room_type_id = room_type.id
-                JOIN public."user" ON reservation.created_by = public."user".id
                 FULL OUTER JOIN room ON reservation.room_id = room.id
                 FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
                 WHERE reservation.check_out = $1 AND reservation.status = $2;
@@ -116,10 +113,8 @@ router.get('/list/:type', async (req,res) => {
                 room_status_type.name_short as room_status_short
             FROM 
                 reservation
-            LEFT join note ON note.reservation_id = reservation.id
             JOIN guest ON reservation.guest_id = guest.id
             JOIN room_type ON reservation.room_type_id = room_type.id
-            JOIN public."user" ON reservation.created_by = public."user".id
             FULL OUTER JOIN room ON reservation.room_id = room.id
             FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
             WHERE reservation.status = $1;

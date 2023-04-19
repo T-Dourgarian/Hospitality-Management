@@ -57,6 +57,8 @@ function Additionals({ additionals, reservation_id, reservation }) {
     const [newAdditionalType, setNewAdditionalType] = useState('');
     const [newAdditionalRate, setNewAdditionalRate] = useState('')
 
+    const [newAdditionalFolio, setNewAdditionalFolio] = useState('');
+
     const [firstPostDate, setFirstPostDate] = useState(() => {
         const check_in = new Date(reservation.check_in)
         const today = new Date();
@@ -78,6 +80,10 @@ function Additionals({ additionals, reservation_id, reservation }) {
         setNewAdditionalRate(e.target.value.rate)
     }
 
+
+    const handleAdditionalFolioSelect = (e) => {
+        setNewAdditionalFolio(e)
+    }
 
 
 
@@ -294,6 +300,26 @@ function Additionals({ additionals, reservation_id, reservation }) {
                             </Grid>
 
                         </Grid>
+
+
+                        <Grid item>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Folio</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={newAdditionalFolio}
+                                    label="Folio"
+                                    onChange={(e) => handleAdditionalFolioSelect(e.target.value)}
+                                    >
+                                    {
+                                        reservation.invoices && reservation.invoices.map(i => <MenuItem key={i.f2.id} value={i.f1}> { i.f2.type } </MenuItem>)
+                                    }
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+
                     </Grid>
                     
                 </DialogContent>
