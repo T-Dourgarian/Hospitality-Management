@@ -37,7 +37,13 @@ import {
 import ReservationTable from './ReservationsTable';
 import ReservationDialog from './ReservationDialog';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+
 import AddIcon from '@mui/icons-material/Add';
+import dayjs from 'dayjs';
 
 function Additionals({ additionals, reservation_id, reservation }) {
       
@@ -50,6 +56,19 @@ function Additionals({ additionals, reservation_id, reservation }) {
     const [selectedAdditional, setSelectedAdditional] = useState('');
     const [newAdditionalType, setNewAdditionalType] = useState('');
     const [newAdditionalRate, setNewAdditionalRate] = useState('')
+
+    const [firstPostDate, setFirstPostDate] = useState(() => {
+        const check_in = new Date(reservation.check_in)
+        const today = new Date();
+
+        if (check_in < today) {
+            return dayjs(today)
+        }
+
+        return dayjs(check_in);
+    });
+
+    const [lastPostDate, setLastPostDate] = useState(dayjs(reservation.check_out));
 
 
     const handleAdditionalSelect = (e) => {
@@ -249,6 +268,31 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     onChange={(e) => setNewAdditionalRate(e.target.value)}
                                 />
                             </FormControl>
+                        </Grid>
+
+
+                        <Grid item>
+                            <Grid container justifyContent={'space-between'}>
+                                <Grid>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker 
+                                            label="Start Date"
+                                            value={firstPostDate}
+                                            onChange={(newValue) => setFirstPostDate(newValue)}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                                <Grid>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker 
+                                            label="End Date"
+                                            value={lastPostDate}
+                                            onChange={(newValue) => setLastPostDate(newValue)}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                            </Grid>
+
                         </Grid>
                     </Grid>
                     

@@ -253,7 +253,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 
                 
                   <Grid item >
-                    <Additionals reservation={reservation.local} additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id}/>
+                    <Additionals reservation={reservationLocal} additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id}/>
                   </Grid>
                 </Grid>
               

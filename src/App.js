@@ -5,6 +5,10 @@ import { Provider } from 'react-redux'
 import { createTheme } from '@mui/material/styles';
 import { purple } from '@mui/material/colors';
 
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -21,7 +25,9 @@ function App() {
   return (
     <Provider>
       <ThemeProvider theme={theme}>
-            <Nav />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Nav /> 
+            </LocalizationProvider>
       </ThemeProvider>
     </Provider>
   );
