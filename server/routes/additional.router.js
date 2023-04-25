@@ -8,18 +8,19 @@ const pool = require('../pool')
 
 router.post('/post', async (req, res) => {
     try {
-      const { reservation_id, additional_id, price, start_date, end_date } = req.body;
+      const { reservation_id, additional_id, price, start_date, end_date, invoice_id } = req.body;
 
       const queryText = `
         INSERT INTO public.additional(
-        reservation_id, additional_type_id, end_date, start_date, price)
-        VALUES ($1, $2, $3, $4, $5);
+        reservation_id, additional_type_id, end_date, start_date, price, invoice_id)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *;
       `
 
 
-      await pool.query(queryText, [ reservation_id, additional_id, price, start_date, end_date ]);
+      const { rows } = await pool.query(queryText, [ reservation_id, additional_id, end_date, start_date, price, invoice_id ]);
 
-      res.send(200).json({ success: true, message: 'Additional has been created' });
+      res.status(200).json(rows[0]);
       
     } catch (err) {
       console.error(err);
@@ -49,6 +50,28 @@ router.put('/update', async (req, res) => {
     } catch (err) {
       console.error(err);
       res.status(400).json({ success: false, message: 'Additional could not be updated' });
+    }
+});
+
+router.delete('/remove/:id', async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const queryText = `
+            DELETE FROM additional
+            WHERE id = $1;
+        `;
+
+        const response = await pool.query(queryText, [id]);
+      
+        console.log('response', response);
+
+        res.send(200);
+
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ success: false, message: err });
     }
 });
 

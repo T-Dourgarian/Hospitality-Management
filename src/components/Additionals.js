@@ -74,6 +74,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
 
 
     const handleSelectAdditional = (a) => {
+        // console.log(a)
 
         setUpdateMode(true);
         setSelectedAdditional(a.f1);
@@ -81,12 +82,27 @@ function Additionals({ additionals, reservation_id, reservation }) {
         setRate(a.f1.price)
         setStartDate(dayjs(a.f1.start_date))
         setEndDate(dayjs(a.f1.end_date));
-        setFolio(a.f3.invoice_type_id)
+        setFolio(a.f3.id)
     }
 
 
     const saveAdditional = async () => {
-        
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/additional/post`, {
+                reservation_id,
+                additional_id: type,
+                price: rate,
+                start_date: startDate,
+                end_date: endDate,
+                invoice_id: folio
+            });
+
+            console.log('response', response);
+
+        } catch(error) {
+            console.log(error)
+        }
     }
 
     const handleTypeSelect = (e) => {
@@ -101,7 +117,6 @@ function Additionals({ additionals, reservation_id, reservation }) {
         try {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/additional/types`);
 
-            console.log(response.data)
 
             setAdditionalTypes(response.data);
 
@@ -122,6 +137,31 @@ function Additionals({ additionals, reservation_id, reservation }) {
 
         return numberOfNights
 
+    }
+
+    const deleteAdditional = async () => {
+
+        try {
+            await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/additional/remove/${selectedAdditional.id}`)
+
+            setLocalAdditionals(
+                localAdditionals.filter(a => a.f1.id != selectedAdditional.id)
+            )
+
+            clearInputs();
+
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
+    const clearInputs = () => {
+        setUpdateMode(false);
+        setType('');
+        setRate('');
+        setFolio('');
+        setStartDate(dayjs(new Date()));
+        setEndDate(dayjs(reservation.check_out));
     }
 
 
@@ -208,6 +248,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                 open={createDialog} 
                 onClose={createDialogToggle}
                 fullWidth
+                maxWidth={'lg'}
             >
                 
                 <DialogContent >
@@ -220,7 +261,6 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     <TableCell>Start Date</TableCell>
                                     <TableCell>End Date</TableCell>
                                     <TableCell>Total Posts</TableCell>
-                                    <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -245,14 +285,6 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             { numberOfNights(a.f1.start_date, a.f1.end_date) }
-                                        </TableCell>
-                                        <TableCell component="th" scope="row">
-
-                                            <IconButton>
-                                                <DeleteIcon sx={{color: 'red !important'}} onClick={() => console.log('sdf')}/>
-                                            </IconButton>
-                                                
-                                            
                                         </TableCell>
                                     </TableRow>
                                 )
@@ -352,7 +384,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                                     onChange={(e) => setFolio(e.target.value)}
                                     >
                                     {
-                                        reservation.invoices && reservation.invoices.map(i => <MenuItem key={i.f2.id} value={i.f2.id}> { i.f2.type } </MenuItem>)
+                                        reservation.invoices && reservation.invoices.map(i => <MenuItem key={i.f1.id} value={i.f1.id}> { i.f2.type } </MenuItem>)
                                     }
                                 </Select>
                             </FormControl>
@@ -375,10 +407,15 @@ function Additionals({ additionals, reservation_id, reservation }) {
                         <Grid item px={2}>
                             {
                                 updateMode ?
-                                <Button 
-                                    variant='contained'
-                                    onClick={saveAdditional}
-                                >save</Button>:
+                                <>
+                                    <Button 
+                                        variant='contained'
+                                        onClick={saveAdditional}
+                                    >save</Button>
+                                    <IconButton onClick={deleteAdditional}>
+                                        <DeleteIcon sx={{color: 'red !important'}} />
+                                    </IconButton>
+                                </>:
                                 <Button 
                                     variant='contained'
                                     onClick={saveAdditional}
