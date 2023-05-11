@@ -98,7 +98,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                 invoice_id: folio
             });
 
-            console.log('response', response);
+            // console.log('response', response);
 
         } catch(error) {
             console.log(error)
@@ -195,11 +195,11 @@ function Additionals({ additionals, reservation_id, reservation }) {
                 <Grid item>
                     <Card
                         variant="outlined"
-                        sx={{
-                            height:'150px',
-                            overflowX:'hidden',
-                            overflowY:'scroll'
-                        }}
+                        // sx={{
+                        //     height:'150px',
+                        //     overflowX:'hidden',
+                        //     overflowY:'scroll'
+                        // }}
                     >
                         <TableContainer component={Paper}>
                             <Table size="small" aria-label="simple table">
