@@ -60,12 +60,15 @@ function TransactionsDialog({ reservation_id, reservation, fetchReservationData 
     const [transactions, setTransactions] = useState(reservation.transactions);
     const [selectedTransactions, setSelectedTransactions] = useState([]);
 
+
+    const dispatch = useDispatch();
+    function handleButtonClick(bool) {
+        dispatch(toggleDialog(bool)); // sets txnDialog to true
+    }
     
 
     const txnDialog = useSelector((state) => state.txnDialog.txnDialog);
 
-    const dispatch = useDispatch();
-    const toggle = (bool) => dispatch(toggleDialog(bool))
 
     const transferTransactions = async (invoice_id) => {
         try {
@@ -153,7 +156,7 @@ function TransactionsDialog({ reservation_id, reservation, fetchReservationData 
         <Box>
             
             <Button
-                onClick={() => toggle(true)}
+                onClick={() => handleButtonClick(true)}
                 variant='contained'
             >
                 Details
@@ -252,7 +255,7 @@ function TransactionsDialog({ reservation_id, reservation, fetchReservationData 
                         <Grid item px={2}>
                             <Button 
                                 variant='outlined'
-                                // onClick={() => setDialog(false)}
+                                onClick={() => handleButtonClick(false)}
                             >Cancel</Button>
                         </Grid>
 
