@@ -52,4 +52,64 @@ router.post('/post', async (req, res) => {
   });
 
 
+  router.put('/transfer/:reservation_id', async (req, res) => {
+    const client = await pool.connect();
+    
+    try {
+      const { reservation_id } = req.params;
+      const { txn_ids, invoice_id } = req.body;
+
+      await client.query('BEGIN');
+
+
+      const updateTransactionQueryText = `
+        UPDATE txns
+        SET invoice_id = $1
+        WHERE id = ANY($2);
+      `
+
+      await client.query({
+        text: updateTransactionQueryText,
+        values:  [invoice_id, txn_ids]
+      });
+
+
+      const updateInvoices = `
+          UPDATE invoice
+            SET total = (
+              SELECT COALESCE(SUM(amount), 0)
+              FROM txns
+              WHERE txns.invoice_id = invoice.id
+              AND txns.txns_type_id NOT IN (
+                SELECT id FROM txns_type WHERE payment = true
+              )
+            ),
+            amount_paid = (
+              SELECT COALESCE(ABS(SUM(amount)), 0)
+              FROM txns
+              WHERE txns.invoice_id = invoice.id
+              AND txns.txns_type_id IN (
+                  SELECT id FROM txns_type WHERE payment = true
+                )
+            )
+          WHERE reservation_id = $1;
+      `
+      await client.query(updateInvoices, [reservation_id]);
+
+
+
+      await client.query('COMMIT');
+
+      res.status(200).json({ success: true, message: 'Transactions moved and invoice updated successfully.' });
+      
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error(err);
+      res.status(400).json({ success: false, message: 'Transaction update failed.' });
+    } finally {
+      await client.release();
+    }
+  });
+
+
 module.exports = router;

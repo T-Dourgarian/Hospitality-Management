@@ -49,7 +49,7 @@ import dayjs from 'dayjs';
 
 
 
-function FolioSummary({ reservation_id, reservation }) { 
+function FolioSummary({ reservation_id, reservation, fetchReservationData }) { 
 
     const [invoices, setInvoices] = useState(reservation.invoices);
     const [transactions, setTransactions] = useState(reservation.transactions);
@@ -111,7 +111,7 @@ function FolioSummary({ reservation_id, reservation }) {
                         </Grid>
 
                         <Grid item>
-                            <TransactionsDialog reservation={reservation} reservation_id={reservation_id}/>
+                            <TransactionsDialog reservation={reservation} reservation_id={reservation_id} fetchReservationData={fetchReservationData}/>
                         </Grid>
                     </Grid>
                 </Grid>

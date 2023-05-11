@@ -248,7 +248,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
               <Grid item xs={6}>
                 <Grid container  direction="column">
                   <Grid item >
-                    <FolioSummary reservation={reservationLocal} reservation_id={reservationLocal.reservation_id}/>
+                    <FolioSummary reservation={reservationLocal} reservation_id={reservationLocal.reservation_id} fetchReservationData={fetchReservationData}/>
                   </Grid>
                   <Grid item pb={1}>
                     <Notes notes={reservationLocal.notes} reservation_id={reservationLocal.reservation_id}/>
