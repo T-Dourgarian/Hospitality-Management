@@ -185,65 +185,113 @@ router.post('/inventory', async(req,res) => {
 });
 
 
+// router.post('/assign', async(req,res) => {
+//     const client = await pool.connect();
+    
+//     try {
+
+//         const { room_id, reservation_id, room_type_id } = req.body;
+
+
+//         await client.query('BEGIN;')
+
+
+
+//         const room = await client.query(
+//             `   Select * FROM room
+//                 WHERE id = $1
+//                 LIMIT 1;
+//             `,[room_id])
+
+
+
+//         if (room.rows[0].reservation_id) { // remove previously assigned room from reservation so I can assign the room to the new reservation
+//             await client.query(
+//             `   UPDATE reservation
+//                 SET room_id = NULL
+//                 WHERE id = $1;
+//             `,[room.rows[0].reservation_id])
+//         }
+
+
+//         const reservation = await client.query( //  assigning the room to new reservation
+//         `   Select * FROM reservation
+//             WHERE id = $1;
+//         `,[reservation_id]);
+
+//         if (reservation.rows[0].room_id) { // unassign old room if there was a room already assigned
+//             await client.query( 
+//             `   UPDATE ROOM
+//                 SET reservation_id = NULL,
+//                     guest_id = NULL
+//                 WHERE id = $1
+//             `,[reservation.rows[0].room_id]);
+//         };
+
+
+//         await client.query( //  assigning room to reservation record
+//         `   UPDATE reservation
+//             SET room_id = $1,
+//                 room_type_id = $2
+//             WHERE id = $3
+//             RETURNING guest_id;
+//         `,[room_id, room_type_id, reservation_id])
+   
+//         await client.query( // assigning reservation and guest to the room record
+//         `   UPDATE room
+//             SET reservation_id = $1,
+//                 guest_id = $2
+//             WHERE id = $3;
+//         `,[reservation_id, reservation.rows[0].guest_id, room_id])
+        
+//         await client.query('COMMIT;')
+
+//         res.sendStatus(200);
+
+//     }catch(error) {
+//         await client.query('ROLLBACK');
+//         console.log(error)
+//         res.sendStatus(400);
+//     }
+// });
+
 router.post('/assign', async(req,res) => {
     const client = await pool.connect();
-    
+
     try {
-
         const { room_id, reservation_id, room_type_id } = req.body;
-
 
         await client.query('BEGIN;')
 
-
-
-        const room = await client.query(
-            `   Select * FROM room
-                WHERE id = $1
-                LIMIT 1;
-            `,[room_id])
-
-
-
-        if (room.rows[0].reservation_id) { // remove previously assigned room from reservation so I can assign the room to the new reservation
-            await client.query(
-            `   UPDATE reservation
-                SET room_id = NULL
-                WHERE id = $1;
-            `,[room.rows[0].reservation_id])
-        }
-
-
-        const reservation = await client.query( //  assigning the room to new reservation
-        `   Select * FROM reservation
-            WHERE id = $1;
-        `,[reservation_id]);
-
-        if (reservation.rows[0].room_id) { // unassign old room if there was a room already assigned
-            await client.query( 
-            `   UPDATE ROOM
+        await client.query(
+            `WITH unassign AS (
+                UPDATE room
                 SET reservation_id = NULL,
                     guest_id = NULL
+                WHERE id = (
+                    SELECT room_id FROM reservation
+                    WHERE id = $1
+                    )
+                ),room_assignment AS (
+                SELECT room.*
+                FROM room
+                WHERE id = $2
+                FOR UPDATE
+            ), guest_assignment AS (
+                UPDATE reservation
+                SET room_id = $2,
+                    room_type_id = $3
                 WHERE id = $1
-            `,[reservation.rows[0].room_id]);
-        };
-
-
-        await client.query( //  assigning room to reservation record
-        `   UPDATE reservation
-            SET room_id = $1,
-                room_type_id = $2
-            WHERE id = $3
-            RETURNING guest_id;
-        `,[room_id, room_type_id, reservation_id])
-   
-        await client.query( // assigning reservation and guest to the room record
-        `   UPDATE room
+                RETURNING guest_id
+            )
+            UPDATE room
             SET reservation_id = $1,
-                guest_id = $2
-            WHERE id = $3;
-        `,[reservation_id, reservation.rows[0].guest_id, room_id])
-        
+                guest_id = guest_assignment.guest_id
+            FROM guest_assignment
+            WHERE id = $2;
+            `,
+            [reservation_id, room_id, room_type_id]
+        );
         await client.query('COMMIT;')
 
         res.sendStatus(200);
@@ -254,7 +302,6 @@ router.post('/assign', async(req,res) => {
         res.sendStatus(400);
     }
 });
-
 
 
 
