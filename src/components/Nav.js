@@ -11,10 +11,10 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Outlet, Link as RouterLink } from "react-router-dom";
 
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchReservations } from '../redux/InHouseReservationsSlice';
 
-// function goToArrivals() {
-    
-// } 
 
 function Nav() {
 
@@ -22,13 +22,19 @@ function Nav() {
 
     const [open, setOpen] = React.useState(true);
 
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      dispatch(fetchReservations());
+    }, [dispatch]);
+
 
   return (
     <div className="App">
         <Grid container direction="row" spacing={2}>
             <Grid item xs={2} borderRight={'1px solid grey '} height={'100vh'}>
                 <List>
-                    {['Front Desk', 'Room Management'].map((text, index) => (
+                    {['Front Desk', 'Room Management', 'Fast Post'].map((text, index) => (
                         <ListItem 
                             key={index} 
                             disablePadding 

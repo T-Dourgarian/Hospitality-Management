@@ -40,7 +40,7 @@ function FrontDesk() {
     const [departures, setDepartures] = useState([]);
     const [allFilteredReservations, setAllFilteredReservations] = useState([]);
     const [filteredReservations, setFilteredReservations] = useState([]);
-    const [roomList, setRoomList] = useState([]);
+    const [roomList, setRoomList] = useState(null);
     const [roomTypes, setRoomTypes] = useState([]);
     const [resFocus, setResFocus] = useState('inHouse');
     const [showTable, setShowTable] = useState(false);

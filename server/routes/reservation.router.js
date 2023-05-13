@@ -97,7 +97,6 @@ router.get('/list/:type', async (req,res) => {
             queryText=
             `
             SELECT 
-                DISTINCT ON (reservation.id)
                 reservation.id as reservation_id,
                 reservation.status as status,
                 reservation.check_in,
@@ -112,12 +111,13 @@ router.get('/list/:type', async (req,res) => {
                 room_status_type.name as room_status,
                 room_status_type.name_short as room_status_short
             FROM 
-                reservation
+                reservation 
             JOIN guest ON reservation.guest_id = guest.id
             JOIN room_type ON reservation.room_type_id = room_type.id
             FULL OUTER JOIN room ON reservation.room_id = room.id
             FULL OUTER JOIN room_status_type on room.status_type_id = room_status_type.id
-            WHERE reservation.status = $1;
+            WHERE reservation.status = $1
+            ORDER BY room.number ASC;
     
             `
 

@@ -73,7 +73,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
 
     const [expanded, setExpanded] = useState(false);
-    const [filteredRoomList, setFilteredRoomList] = useState([])
+    const [filteredRoomList, setFilteredRoomList] = useState(null)
     const [showVacant, setShowVacant] = useState(true);
     const [showOccupied, setShowOccupied] = useState(false);
     const [showClean, setShowClean] = useState(true);
@@ -207,38 +207,40 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
 
     useEffect(() => {
-      let statusFilter = [];
+      if (localRoomList) {
+        let statusFilter = [];
 
-      if (showClean) statusFilter.push('Clean')
-      if (showDirty) statusFilter.push('Dirty')
-      if (showTurning) statusFilter.push('Turning')
+        if (showClean) statusFilter.push('Clean')
+        if (showDirty) statusFilter.push('Dirty')
+        if (showTurning) statusFilter.push('Turning')
 
-      let newRoomList = [];
+        let newRoomList = [];
 
-      // room status filtering
-      newRoomList = localRoomList.filter(room => {
-        return statusFilter.includes(room.status_name);
-      })
+        // room status filtering
+        newRoomList = localRoomList.filter(room => {
+          return statusFilter.includes(room.status_name);
+        })
 
-      // vacant/occupied filtering
-      newRoomList = newRoomList.filter(room => {
-        if (showVacant && showOccupied) {
-          return true;
-        } else if (showVacant) {
-          return room.vacant;
-        } else if ( showOccupied) {
-          return !room.vacant;
-        } else {
-          return true;
-        }
-      })
+        // vacant/occupied filtering
+        newRoomList = newRoomList.filter(room => {
+          if (showVacant && showOccupied) {
+            return true;
+          } else if (showVacant) {
+            return room.vacant;
+          } else if ( showOccupied) {
+            return !room.vacant;
+          } else {
+            return true;
+          }
+        })
 
 
-      newRoomList = newRoomList.filter(room => {
-        return roomTypeChecks.includes(room.room_type)
-      })
+        newRoomList = newRoomList.filter(room => {
+          return roomTypeChecks.includes(room.room_type)
+        })
 
-      setFilteredRoomList(newRoomList);
+        setFilteredRoomList(newRoomList);
+      }
     }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks), updateFlag])
 
 

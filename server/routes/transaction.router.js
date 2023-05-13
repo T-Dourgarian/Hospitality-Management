@@ -112,4 +112,26 @@ router.post('/post', async (req, res) => {
   });
 
 
+
+  router.get('/types', async (req, res) => {
+    
+    try {
+      
+      const queryText = `
+        SELECT * from txns_type WHERE property_id = 1
+      `
+
+      const results = await pool.query(queryText);
+
+
+      res.status(200).json(results.rows);
+      
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ success: false, message: 'Couldn"t fetch transaction types' });
+    } finally {
+    }
+  });
+
+
 module.exports = router;
