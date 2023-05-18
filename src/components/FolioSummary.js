@@ -36,6 +36,7 @@ import {
 } from '@mui/material';
 
 import TransactionsDialog from './TransactionsDialog';
+import PostDialog from './PostDialog';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -46,6 +47,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import dayjs from 'dayjs';
+
 
 
 
@@ -89,15 +91,30 @@ function FolioSummary({ reservation_id, reservation, fetchReservationData }) {
 
 
     useEffect(() => {
+        if (!Object.is(invoices, reservation.invoices)) {
+          setInvoices(reservation.invoices);
+        }
+      }, [reservation.invoices]);
+    
+      useEffect(() => {
+        if (!Object.is(transactions, reservation.transactions)) {
+          setTransactions(reservation.transactions);
+        }
+      }, [reservation.transactions]);
+
+
+    useEffect(() => {
         setInvoices(reservation.invoices);
     },[reservation_id])
 
     return (
-        <Box>
+        <Card>
 
-            <Grid container direction="column">
-                <Grid item>
-                    <Grid container justifyContent={'space-between'} pb={1} alignItems="center" >
+            <Grid container direction="column"
+                
+            >
+                <Grid item px={1}>
+                    <Grid container justifyContent={'space-between'} py={1} alignItems="center" >
                         <Grid item>
                             Folio
                         </Grid>
@@ -111,6 +128,7 @@ function FolioSummary({ reservation_id, reservation, fetchReservationData }) {
                         </Grid>
 
                         <Grid item>
+                            <PostDialog reservation={reservation} reservation_id={reservation_id} fetchReservationData={fetchReservationData}/>
                             <TransactionsDialog reservation={reservation} reservation_id={reservation_id} fetchReservationData={fetchReservationData}/>
                         </Grid>
                     </Grid>
@@ -170,7 +188,7 @@ function FolioSummary({ reservation_id, reservation, fetchReservationData }) {
                 </Grid>
             </Grid>
             
-        </Box>
+        </Card>
     );
   }
   

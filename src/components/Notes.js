@@ -73,29 +73,10 @@ function Notes({ notes, reservation_id }) {
   
 
     return (
-        <Grid container direction="column">
-            <Grid container justifyContent={'space-between'} pb={1} alignItems="center">
-                <Grid item>
-                    Notes
-                </Grid>
-                <Grid item>
-                    <Button
-                        variant="contained"
-                        onClick={createDialogToggle}
-                        sx={{ zIndex: '0 !important'}}
-                        size="small"
-                    >
-                        <AddIcon />
-                    </Button>
-                </Grid>
-            </Grid>
+        <Grid container direction="column" py={1}>
             <Card 
-                variant="outlined"
-                sx={{
-                    height:'150px',
-                    overflowX:'hidden',
-                    overflowY:'scroll'
-                }}
+                
+                
                 
             >
                 <Grid 
@@ -103,44 +84,76 @@ function Notes({ notes, reservation_id }) {
                     direction="column"  
                 >
 
-                    {
-                        notesLocal && notesLocal.map(note => 
-                            <Grid key={note.f1.id} item py={1} px={1}
-                                sx={{
-                                    backgroundColor: '#ededed',
-                                    borderRadius:'5px'
-                                }}
-                                mx={1}
-                                mt={1}
-                            >
-                                <Grid container direction="row"  alignItems='center'>
-                                    <Grid item xs={10} 
-                                        sx={{ 
-                                            fontSize: '12px',
-                                        }}
-                                    >
-                                        { note.f1.text }
-                                        <Box 
-                                    
-                                            sx={{
-                                                fontSize:'12px',
-                                                color: 'grey',
-                                            }}
-                                        >
-                                            { note.f1.created_at.split('T')[0] + ' ' + (new Date(note.f1.created_at)).toLocaleTimeString()}
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={2}>
-                                        <Box
-                                            
-                                        >
-                                            <Chip size="small" label={note.f2.last_name} variant="outlined" />
-                                        </Box>
-                                    </Grid>
-                                </Grid>
+                    <Grid item px={1} pt={1}>
+                        <Grid container justifyContent={'space-between'} pb={1} alignItems="center">
+                            <Grid item>
+                                Notes
                             </Grid>
-                        ) 
-                    }
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    onClick={createDialogToggle}
+                                    sx={{ zIndex: '0 !important'}}
+                                    size="small"
+                                >
+                                    <AddIcon />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    <Grid item>
+                        <Box
+                            sx={{
+                                height:'250px',
+                                overflowX:'hidden',
+                                overflowY:'scroll'
+                            }}
+                        >
+                            <Grid container 
+                                direction="column"  
+                            >
+                                {
+                                    notesLocal && notesLocal.map(note => 
+                                        <Grid key={note.f1.id} item py={1} px={1}
+                                            sx={{
+                                                backgroundColor: '#ededed',
+                                                borderRadius:'5px'
+                                            }}
+                                            mx={1}
+                                            mt={1}
+                                        >
+                                            <Grid container direction="row"  alignItems='center'>
+                                                <Grid item xs={10} 
+                                                    sx={{ 
+                                                        fontSize: '12px',
+                                                    }}
+                                                >
+                                                    { note.f1.text }
+                                                    <Box 
+                                                
+                                                        sx={{
+                                                            fontSize:'12px',
+                                                            color: 'grey',
+                                                        }}
+                                                    >
+                                                        { note.f1.created_at.split('T')[0] + ' ' + (new Date(note.f1.created_at)).toLocaleTimeString()}
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={2}>
+                                                    <Box
+                                                        
+                                                    >
+                                                        <Chip size="small" label={note.f2.last_name} variant="outlined" />
+                                                    </Box>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    ) 
+                                }
+                            </Grid>
+                        </Box>
+                    </Grid>
                         
                 </Grid>
             </Card>

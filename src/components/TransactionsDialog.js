@@ -158,6 +158,7 @@ function TransactionsDialog({ reservation_id, reservation, fetchReservationData 
             <Button
                 onClick={() => handleButtonClick(true)}
                 variant='contained'
+                size='small'
             >
                 Details
             </Button>
