@@ -103,7 +103,6 @@ function FastPost() {
 
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/transaction/types`);
 
-            console.log(response.data)
 
             setTxnTypes(response.data);
 
@@ -116,8 +115,6 @@ function FastPost() {
         try {
 
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/invoice/types`);
-
-            console.log(response.data)
 
             setInvoiceTypes(response.data);
 

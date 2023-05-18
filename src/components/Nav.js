@@ -11,7 +11,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Outlet, Link as RouterLink } from "react-router-dom";
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchReservations } from '../redux/InHouseReservationsSlice';
 
@@ -20,13 +20,23 @@ function Nav() {
 
     const [tabSelected, setTabSelected] = useState('');
 
-    const [open, setOpen] = React.useState(true);
+    const selectedReservation = useSelector((state) => state.selectedReservation.selectedReservation);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
       dispatch(fetchReservations());
     }, [dispatch]);
+
+
+    const route = (text) => {
+        if (text == 'Front Desk' && selectedReservation) {
+            
+            return `/${text.replaceAll(' ','').toLowerCase()}` + `/${selectedReservation}` 
+        }
+
+        return `/${text.replaceAll(' ','').toLowerCase()}`
+    }
 
 
   return (
@@ -46,7 +56,7 @@ function Nav() {
                                 pl={3}
                                 selected={tabSelected == text}
                                 component={RouterLink}
-                                to={`/${text.replaceAll(' ','').toLowerCase()}`}
+                                to={route(text)}
                             >
                                 { text }
                             </ListItemButton>

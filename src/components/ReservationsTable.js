@@ -14,7 +14,8 @@ import {
     TextField
 } from '@mui/material';
 
-// import { useSelector, useDispatch } from 'react-redux'
+import { setReservation } from '../redux/selectedReservationSlice';
+import { useDispatch } from 'react-redux'
 
 import { useNavigate } from "react-router-dom";
 
@@ -23,9 +24,11 @@ function ReservationTable({ reservations, setShowTable  }) {
 
     const navigate = useNavigate();
 
+    const dispatch = useDispatch();
 
 
     const handleNavigate = (reservation_id) => {
+        dispatch(setReservation(reservation_id));
         navigate(`/frontdesk/${reservation_id}`)
         setShowTable(false);
     }
