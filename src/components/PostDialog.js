@@ -74,13 +74,18 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
         type: null,
         amount: null
     });
+    const [txnTypes, setTxnTypes] = useState([])
     const [dialog, setDialog] = useState(false);
     
     const filterTransactions = () => {
         let txns = reservation.transactions.filter(txn => txn.f1.invoice_id === selectedInvoice.f1.id);
 
+        // txns.sort((a,b) => {
+        //     return new Date(a.f1.created_at) - new Date(b.f1.created_at)
+        // })
+
         txns.sort((a,b) => {
-            return new Date(a.f1.created_at) - new Date(b.f1.created_at)
+            return new Date(b.f1.id) - new Date(a.f1.id)
         })
 
 
@@ -88,11 +93,25 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
 
     };
 
+    const fetchTxnTypes = async () => {
+        try {
+
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/transaction/types`);
+            setTxnTypes(response.data);
+
+            console.log('txntypes', response.data);
+            // console.log()
+
+        } catch(error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         filterTransactions();
     },[selectedInvoice.f1.id])
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
     function toggleDialog(bool) {
         setDialog(bool)
@@ -103,8 +122,8 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
 
         setTransactionFormData((prevData) => ({ 
             id: txn.f1.id,
-            type: txn.f2.type,
-            amount: txn.f1.amount
+            type: txn.f2,
+            amount: txn.f1.amount * -1
         }));
 
     }
@@ -147,7 +166,7 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
 
 
     useEffect(() => {
-        console.log(invoices)
+        fetchTxnTypes();
         if (reservation.transactions) {
             filterTransactions();
         }
@@ -172,7 +191,11 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
         const { name, value } = e.target;
         setTransactionFormData((prevData) => ({ ...prevData, [name]: value }));
       };
-    
+
+      const handleSelectTransactionType = (event, value) => {
+        setTransactionFormData((prevData) => ({ ...prevData, type: value }));
+      }
+
       const handleClear = () => {
         setTransactionFormData({
             id: '',
@@ -180,6 +203,45 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
             amount: ''
         });
       };
+
+      const postNewTransaction = async () => {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/transaction/post`,
+            {
+                reservation_id,
+                invoice_type_id: selectedInvoice.f2.id,
+                txns_type_id: transactionFormData.type.id,
+                amount: transactionFormData.amount
+            });
+
+
+            fetchReservationData();
+        } catch(error) {
+            console.log(error);
+        }
+      } 
+
+
+    //   const { reservation_id, invoice_type_id, txns_type_id, txns_id, amount } = req.body;
+      const discountTransaction = async () => {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/transaction/discount`,
+            {
+                reservation_id,
+                invoice_type_id: selectedInvoice.f2.id,
+                txns_type_id: transactionFormData.type.id,
+                txns_id: transactionFormData.id,
+                amount: transactionFormData.amount
+            });
+
+            console.log(response);
+
+
+            fetchReservationData();
+        } catch(error) {
+            console.log(error);
+        }
+      }
 
     return (
         <Box>
@@ -357,8 +419,8 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
                                         size='small'
                                     />
                                 </Grid>
-                                <Grid item>
-                                    <TextField
+                                
+                                    {/* <TextField
                                         name="type"
                                         label="Type"
                                         value={transactionFormData.type || ''}
@@ -366,10 +428,30 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
                                         variant="outlined"
                                         margin="normal"
                                         size='small'
-                                    />
+                                    /> */}
+                                <Grid item pt={1}>
+                                    {
+                                        txnTypes[0] &&
+                                        <Autocomplete
+                                            options={txnTypes}
+                                            getOptionLabel={(option) => option && option.type ? option.type : ''}
+                                            renderInput={(params) => (
+                                                <TextField {...params} label="Transaction Type" variant="outlined" />
+                                            )}
+                                            isOptionEqualToValue={(option, value) => option.id === value.id || value === ''}
+                                            value={transactionFormData.type || ''}
+                                            onChange={handleSelectTransactionType}
+                                            clearOnEscape
+                                            clearOnBlur
+                                            size="small"
+                                            
+                                        />
+                                    }
                                 </Grid>
+                                
                                 <Grid item>
                                     <TextField
+                                        disabled={transactionFormData.id ? true : false}
                                         name="amount"
                                         label="Amount"
                                         value={ transactionFormData.amount || ''}
@@ -396,17 +478,17 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
                         </Grid>
 
                         {
-                            selectedTransaction ?
+                            transactionFormData.id ?
                             <Grid item px={2}>
                                 <Button 
                                     variant='outlined'
-                                    onClick={() => toggleDialog(false)}
+                                    onClick={() => discountTransaction()}
                                 >Discount transaction</Button>
                             </Grid>:
                             <Grid item px={2}>
                                 <Button 
                                     variant='outlined'
-                                    onClick={() => toggleDialog(false)}
+                                    onClick={() => postNewTransaction()}
                                 >Post Transaction</Button>
                             </Grid>
                         }
