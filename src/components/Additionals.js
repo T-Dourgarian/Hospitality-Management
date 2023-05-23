@@ -135,7 +135,8 @@ function Additionals({ additionals, reservation_id, reservation }) {
         let timeDiff = Math.abs(end.getTime() - start.getTime());
         let numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
 
-        return numberOfNights
+        return numberOfNights == 0 ? 1 : numberOfNights
+
 
     }
 

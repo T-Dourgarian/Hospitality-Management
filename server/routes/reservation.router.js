@@ -194,7 +194,12 @@ router.get('/single/:reservation_id', async (req,res) => {
                 from invoice i
                 JOIN invoice_type it on i.invoice_type_id = it.id
                 where i.reservation_id = reservation.id
-            )   as invoices
+            )   as invoices,
+            (
+                select json_agg(json_build_object('id', s.id, 'rate', s.rate::text, 'date', s.date))
+                from stay_details s
+                where s.reservation_id = $1
+            )   as stay_details
         FROM 
             reservation
         LEFT join note ON note.reservation_id = reservation.id

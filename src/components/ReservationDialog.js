@@ -24,7 +24,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import Notes from './Notes';
 import AssignRoom from './AssignRoom';
 import Additionals from './Additionals';
-import FolioSummary from './FolioSummary'
+import FolioSummary from './FolioSummary';
+import StayDetails from './StayDetails';
 
 function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } ) {
     const [open, setOpen] = useState(false);
@@ -257,6 +258,10 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                 
                   <Grid item >
                     <Additionals reservation={reservationLocal} additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id}/>
+                  </Grid>
+
+                  <Grid item>
+                    <StayDetails stay_details={reservationLocal.stay_details} reservation_id={reservationLocal.reservation_id} fetchReservationData={fetchReservationData}/>
                   </Grid>
 
                 </Grid>

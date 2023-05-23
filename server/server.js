@@ -18,6 +18,7 @@ const noteRouter = require('./routes/notes.router');
 const transactionRouter = require('./routes/transaction.router');
 const additionalRouter = require('./routes/additional.router');
 const invoiceRouter = require('./routes/invoice.router');
+const stayDetails = require('./routes/staydetails.router')
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -40,6 +41,7 @@ app.use('/api/v1/notes', noteRouter);
 app.use('/api/v1/transaction', transactionRouter);
 app.use('/api/v1/additional', additionalRouter);
 app.use('/api/v1/invoice', invoiceRouter);
+app.use('/api/v1/staydetails', stayDetails);
 
 
 // Serve static files
