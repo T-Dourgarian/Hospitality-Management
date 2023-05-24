@@ -125,7 +125,12 @@ function StayDetails({ stay_details, reservation_id, fetchReservationData }) {
                     </Grid>
 
                     <Grid item>
-                        <TableContainer component={Paper}>
+                        <TableContainer component={Paper}
+                            sx={{
+                                maxHeight:'250px',
+                                overflow:'auto'
+                            }}
+                        >
                                 <Table size="small" aria-label="simple table">
                                     <TableHead>
                                         <TableRow>
@@ -172,8 +177,13 @@ function StayDetails({ stay_details, reservation_id, fetchReservationData }) {
                         Stay Details
                     </Box>
                     
-                    <TableContainer component={Paper} >
-                        <Table size="small" aria-label="simple table">
+                    <TableContainer component={Paper} 
+                        sx={{
+                            maxHeight:'250px',
+                            overflow:'auto'
+                        }}
+                    >
+                        <Table size="small" aria-label="simple table" stickyHeader>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>ID</TableCell>
@@ -181,7 +191,8 @@ function StayDetails({ stay_details, reservation_id, fetchReservationData }) {
                                     <TableCell>Price</TableCell>
                                 </TableRow>
                             </TableHead>
-                            <TableBody>
+                            <TableBody
+                            >
                                 {
                                     localStayDetails[0] && localStayDetails.map(s => 
                                         <TableRow 

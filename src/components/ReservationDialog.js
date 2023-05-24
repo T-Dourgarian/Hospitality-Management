@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 
 import PersonIcon from '@mui/icons-material/Person';
+import numberOfNights from '../utils/numberOfNights';
 
 import Notes from './Notes';
 import AssignRoom from './AssignRoom';
@@ -33,6 +34,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
     const [updateMade, setUpdateMade] = useState(false);
     const [reservation, setReservation] = useState(null);
     const [reservationLocal, setReservationLocal] = useState(null);
+    const [grandTotalCalc, setGrandTotalCalc] = useState('')
 
 
     const fetchReservationData = async () => {
@@ -43,6 +45,31 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
           setReservation(response.data);
           setReservationLocal(response.data)
 
+
+          let res = response.data
+
+          res && setGrandTotalCalc(
+            () => {
+              let total = 0;
+        
+              // room / accomodation cost
+        
+              if (res.stay_details && res.stay_details[0]) {
+                res.stay_details.forEach(s => {
+                  total += Number(s.rate);
+                });
+              }
+        
+              if (res.additionals && res.additionals[0]) {
+                res.additionals.forEach(a => {
+                  total += a.f1.price * numberOfNights(a.f1.start_date, a.f1.end_date)
+                })
+              }
+        
+              return total;
+        
+            }
+          )
 
         }
       } catch(error) {
@@ -106,6 +133,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
         console.log(error);
       }
     }
+
 
      
     return (
@@ -178,10 +206,10 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                           </Grid>
                           <Grid item>
                               <div className='ReservationModalLabel'>
-                                  Rate
+                                  Average Rate / night
                               </div>
                               <div className='ReservationModalData'>
-                                  { reservationLocal.rate }
+                                  { reservationLocal.average_rate }
                               </div>
                           </Grid>
                         </Grid>
@@ -232,6 +260,22 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                         </Grid>
                       </Grid>
 
+                      <Grid item>
+                        <Grid container direction="column" spacing={1}>
+                          <Grid item >
+                            <div className='ReservationModalLabel'>
+                                Grand Total
+                            </div>
+                            <div className='ReservationModalData '>
+                                { grandTotalCalc }
+                            </div>
+                          </Grid>
+                        </Grid>
+
+                        
+
+                        
+                      </Grid>
 
                     </Grid>
                     <Grid item py={2}>
@@ -257,7 +301,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 
                 
                   <Grid item >
-                    <Additionals reservation={reservationLocal} additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id}/>
+                    <Additionals reservation={reservationLocal} additionals={reservationLocal.additionals} reservation_id={reservationLocal.reservation_id} fetchReservationData={fetchReservationData}/>
                   </Grid>
 
                   <Grid item>
@@ -267,6 +311,8 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                 </Grid>
               
               </Grid>       
+
+              
             </Grid>
 
             

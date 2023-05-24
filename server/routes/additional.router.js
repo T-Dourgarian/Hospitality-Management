@@ -65,7 +65,7 @@ router.delete('/remove/:id', async (req, res) => {
 
         await pool.query(queryText, [id]);
 
-        res.send(200);
+        res.sendStatus(200);
 
     } catch (err) {
       console.error(err);

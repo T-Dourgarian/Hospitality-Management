@@ -24,9 +24,11 @@ import {
     Box,
     Typography
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 import ReservationTable from './ReservationsTable';
 import ReservationDialog from './ReservationDialog';
+import ReservationDetails from './ReservationDetails';
 
 import { Routes, Route, useParams } from 'react-router-dom';
 
@@ -114,61 +116,74 @@ function FrontDesk() {
 
 
     return (
-        <Grid container direction="column" spacing={2} pt={2}>
-            <Grid 
-              item 
-            >
+			<Grid container direction="column" spacing={2} pt={2}>
+				<Grid 
+				item 
+				>
 
 
-              <Grid 
-                container
-                alignItems="center"
-                pb={1}
-                sx={{
-                  borderBottom: '1px solid grey'
-                }}
-              >
-                
-                  <Grid item>
-                    <TextField 
-                      id="outlined-basic" 
-                      label="Search" 
-                      variant="outlined" 
-                      size="small"
-                      onChange={(e) => filter(e.target.value)}
-                      onFocus={() => setShowTable(true)}
-                      onBlur={() => setShowTable(false)}
-                    />
-                  </Grid>
+				<Grid 
+					container
+					alignItems="center"
+					justifyContent={'space-between'}
+					width='100%'
+					pb={1}
+					sx={{
+					borderBottom: '1px solid grey'
+					}}
+				>
+					
+					<Grid item>
+						<Grid container>
+							<Grid item >
+								<TextField 
+								id="outlined-basic" 
+								label="Search" 
+								variant="outlined" 
+								size="small"
+								onChange={(e) => filter(e.target.value)}
+								onFocus={() => setShowTable(true)}
+								onBlur={() => setShowTable(false)}
+								/>
+							</Grid>
 
 
-                  <Grid item pl={2}>
-                    <FormControl>
-                      <RadioGroup
-                          aria-labelledby="demo-radio-buttons-group-label"
-                          value={resFocus}
-                          onChange={(e) => setResFocus(e.target.value)}
-                          name="radio-buttons-group"
-                          row
-                      >
-                          <FormControlLabel value="arrivals" control={<Radio />} label="Arrivals" />
-                          <FormControlLabel value="inHouse" control={<Radio />} label="In House" />
-                          <FormControlLabel value="departures" control={<Radio />} label="Departures" />
-                      </RadioGroup>
-                    </FormControl>
-                  </Grid>
-                  
-              </Grid>
+							<Grid item pl={2}>
+								<FormControl>
+								<RadioGroup
+									aria-labelledby="demo-radio-buttons-group-label"
+									value={resFocus}
+									onChange={(e) => setResFocus(e.target.value)}
+									name="radio-buttons-group"
+									row
+								>
+									<FormControlLabel value="arrivals" control={<Radio />} label="Arrivals" />
+									<FormControlLabel value="inHouse" control={<Radio />} label="In House" />
+									<FormControlLabel value="departures" control={<Radio />} label="Departures" />
+								</RadioGroup>
+								</FormControl>
+							</Grid>
+						</Grid>
+					</Grid>
 
 
-              {
-                showTable && <ReservationTable setFilteredReservations={setFilteredReservations} setShowTable={setShowTable} reservations={filteredReservations}/>
-              }        
+					<Grid item pr={3} >
+							
+						<ReservationDetails createNewRes={true} roomTypes={roomTypes}/>
+							
+					</Grid>
+					
+				</Grid>
 
-              <ReservationDialog reservation_id={reservation_id} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} />
 
-            
-            </Grid>
+				{
+					showTable && <ReservationTable setFilteredReservations={setFilteredReservations} setShowTable={setShowTable} reservations={filteredReservations}/>
+				}        
+
+				<ReservationDialog reservation_id={reservation_id} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} />
+
+				
+				</Grid>
         </Grid>
     );
   }

@@ -66,8 +66,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function PostDialog({ reservation_id, reservation, fetchReservationData }) { 
 
     const [invoices, setInvoices] = useState(reservation.invoices);
-    const [selectedInvoice, setSelectedInvoice] = useState(reservation.invoices[0])
-    const [transactions, setTransactions] = useState([]);
+    const [selectedInvoice, setSelectedInvoice] = useState(reservation.invoices ? reservation.invoices[0] : null)
+    const [transactions, setTransactions] = useState(null);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactionFormData, setTransactionFormData] = useState({
         id: null,
@@ -353,7 +353,7 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
                                         </TableHead>
                                         <TableBody>
                                             {
-                                                transactions[0] && transactions.map(txn => {
+                                                transactions && transactions.map(txn => {
                                                     return (
                                                         <StyledTableRow key={txn.f1.id}
                                                             onClick={() => handleTransactionSelect(txn)}

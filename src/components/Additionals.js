@@ -50,7 +50,7 @@ import dayjs from 'dayjs';
 
 
 
-function Additionals({ additionals, reservation_id, reservation }) { 
+function Additionals({ additionals, reservation_id, reservation, fetchReservationData }) { 
 
     const [localAdditionals, setLocalAdditionals] = useState(null);
     const [createDialog, setCreateDialog] = useState(false);
@@ -98,7 +98,7 @@ function Additionals({ additionals, reservation_id, reservation }) {
                 invoice_id: folio
             });
 
-            // console.log('response', response);
+            fetchReservationData();
 
         } catch(error) {
             console.log(error)
@@ -170,6 +170,16 @@ function Additionals({ additionals, reservation_id, reservation }) {
         fetchAdditionalTypes();
         setLocalAdditionals(additionals);
     },[reservation_id])
+
+    useEffect(() => {
+        if (!Object.is(localAdditionals, additionals)) {
+            
+            if (additionals) {
+                setLocalAdditionals(additionals);
+            }
+
+        }
+      }, [additionals]);
 
     return (
         <Box>
