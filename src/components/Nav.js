@@ -13,7 +13,7 @@ import { Outlet, Link as RouterLink } from "react-router-dom";
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { fetchReservations } from '../redux/InHouseReservationsSlice';
+import { fetchReservations } from '../redux/inHouseReservationsSlice';
 
 
 function Nav() {

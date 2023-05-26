@@ -7,6 +7,7 @@ import {
     Button,
     Grid,
     Card,
+	Collapse,
     Checkbox,
 	Chip,
     Dialog,
@@ -39,6 +40,7 @@ import {
     Typography
 } from '@mui/material';
 
+
 import ReservationTable from './ReservationsTable';
 import ReservationDialog from './ReservationDialog';
 
@@ -50,9 +52,13 @@ import { toggleDialog } from '../redux/txnDialogSlice';
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import dayjs from 'dayjs';
 import numberOfNights from '../utils/numberOfNights';
+
+import { fetchRatePlans } from '../redux/ratePlansSlice';
 
 const validateEmail = (value) => {
 	if (value) {
@@ -80,7 +86,6 @@ const validatePhoneNumber = (value) => {
 
 function ReservationDetails({ roomTypes }) {
 
-
 	const [today] = useState(new Date());
     const [dialog, setDialog] = useState(false);
 	const [formData, setFormData] = useState({
@@ -98,6 +103,14 @@ function ReservationDetails({ roomTypes }) {
 	})
 	const [displayRoomTypes, setDisplayRoomTypes] = useState([])
 
+	const ratePlans = useSelector(state => state.ratePlans.ratePlans);
+	const dispatch = useDispatch();
+
+    useEffect(() => {
+      dispatch(fetchRatePlans());
+    }, [dispatch]);
+
+	
 	const isEmailValid = validateEmail(formData.email);
 	const isPhoneNumberValid = validatePhoneNumber(formData.phoneNumber);
 
@@ -114,7 +127,6 @@ function ReservationDetails({ roomTypes }) {
 	useEffect(() => {
 
 		if (formData.checkIn && formData.numberOfNights ) {
-			console.log('here')
 			setFormData(
 				{
 					...formData,
@@ -150,7 +162,7 @@ function ReservationDetails({ roomTypes }) {
 
 
 	useEffect(() => {
-		console.log('roomTypes', roomTypes)
+		console.log('roomTypes', roomTypes, ratePlans)
 	}, [roomTypes])
 
 	const handleRoomType = (event) => {
@@ -333,36 +345,6 @@ function ReservationDetails({ roomTypes }) {
 						<Grid item xs={9} pt={1} pl={1}>
 							<Grid container direction='column' alignItems={'stretch'} >
 								<Grid item >
-									{/* <FormControl fullWidth>
-										<InputLabel id="RoomType">Room Type</InputLabel>
-										<Select
-											labelId="RoomType"
-											id="RoomType"
-											value={displayRoomTypes}
-											label="Room Type"
-											onChange={handleRoomType}
-											input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-											renderValue={(selected) => (
-												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-												  {selected.map((value) => (
-													<Chip key={value.id} label={value.name_short} />
-												  ))}
-												</Box>
-											)}
-										>
-											{
-												roomTypes && roomTypes.map(rt => 
-													<MenuItem 
-														key={rt.id}
-														value={rt}
-													>
-														{ rt.name_short }
-													</MenuItem>
-												)
-											}
-										</Select>
-									</FormControl> */}
-
 									<Autocomplete
 										multiple
 										disableCloseOnSelect
@@ -387,7 +369,31 @@ function ReservationDetails({ roomTypes }) {
 											/>
 											))
 										}
-										/>
+									/>
+								</Grid>
+								<Grid item>
+									<TableContainer component={Paper}>
+									<Table aria-label="collapsible table" size={'small'}>
+										<TableHead>
+											<TableRow>
+												<TableCell />
+												<TableCell>RoomType</TableCell>
+											</TableRow>
+										</TableHead>
+										<TableBody>
+											{displayRoomTypes.map((rt) => (
+												<Row
+													size={'small'} 
+													key={rt.id} 
+													roomType={rt} 
+													ratePlans={ratePlans} 
+													checkIn={formData.checkIn}
+													numberOfNights={formData.numberOfNights}
+												/>
+											))}
+										</TableBody>
+									</Table>
+									</TableContainer>
 								</Grid>
 							</Grid>
 						</Grid>
@@ -412,5 +418,80 @@ function ReservationDetails({ roomTypes }) {
     </>
   );
 }
+
+function Row(props) {
+	const { roomType, ratePlans, checkIn, numberOfNights } = props;
+	const [open, setOpen] = useState(false);
+
+	const [dates, setDates] = useState(null);
+
+	useEffect(() => {
+
+		let datesTemp = []
+		let tempDate = checkIn;
+
+		for (let i = 0; i < numberOfNights; i++) {
+			datesTemp.push(tempDate);
+			tempDate.add(1, 'day');
+		}
+
+		setDates(datesTemp);
+
+	}, [checkIn, numberOfNights])
+  
+	return (
+	  <React.Fragment>
+		<TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+		  <TableCell>
+			<IconButton
+			  aria-label="expand row"
+			  size="small"
+			  onClick={() => setOpen(!open)}
+			>
+			  {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+			</IconButton>
+		  </TableCell>
+		  <TableCell component="th" scope="row" sx={{ fontWeight:'bold'}}>
+			{roomType.name_short}
+		  </TableCell>
+		</TableRow>
+		<TableRow>
+		  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+			<Collapse in={open} timeout="auto" unmountOnExit>
+			  <Box sx={{ margin: 1 }}>
+				<Table size="small" aria-label="purchases">
+				  <TableHead>
+					<TableRow>
+					  <TableCell>Rate Plan</TableCell>
+					  {
+						dates && dates.map((d,i) => <TableCell key={i} >{ d.format('M/D') }</TableCell>)
+					  }
+					</TableRow>
+				  </TableHead>
+				  <TableBody >
+						{
+							ratePlans && ratePlans.filter(rt => rt.room_type_id == roomType.id ).map(rt => 
+								<TableRow key={rt.id} component="th" scope="row" hover>
+									<TableCell>
+										{ rt.name }
+									</TableCell>
+									{
+										dates && dates.map(d => 
+										<TableCell>
+											{ rt.base_price }
+										</TableCell>)
+									}
+								</TableRow>
+							)
+						}
+				  </TableBody>
+				</Table>
+			  </Box>
+			</Collapse>
+		  </TableCell>
+		</TableRow>
+	  </React.Fragment>
+	);
+  }
 
 export default ReservationDetails;
