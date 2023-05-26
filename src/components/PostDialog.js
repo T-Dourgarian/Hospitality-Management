@@ -99,8 +99,6 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/transaction/types`);
             setTxnTypes(response.data);
 
-            console.log('txntypes', response.data);
-            // console.log()
 
         } catch(error) {
             console.log(error)
