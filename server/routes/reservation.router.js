@@ -228,18 +228,32 @@ router.get('/single/:reservation_id', async (req,res) => {
 });
 
 
+// const [formData, setFormData] = useState({
+//     lastName: '',
+//     firstName: '',
+//     email: '',
+//     phoneNumber: '',
+//     checkIn: dayjs(today),
+//     checkOut: '',
+//     numberOfNights: '',
+//     roomType: '',
+//     ratePlan: '',
+//     adults: 1,
+//     children: 0,
+//     note: ''
+// })
 router.post('/new', async (req,res) => {
     try {
 
 
 
-        const { reservation_id } = req.params;
+        const { lastName, firstName, email, phoneNumber, checkIn, checkOut, numberOfNights, roomType, ratePlan, adults, children, note } = req.params;
 
-
-        const queryText = 
-        `
-
-        `
+            // guest check / insert
+        // const  = 
+        // `
+        //     INSERT 
+        // `
         
         pool.query(queryText, [reservation_id])
         .then(result => {

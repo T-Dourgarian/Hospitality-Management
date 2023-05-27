@@ -102,21 +102,23 @@ function ReservationDetails({ roomTypes }) {
 		children: 0,
 		note: ''
 	})
+	const requiredProperties = ['lastName', 'firstName', 'email', 'phoneNumber', 'checkIn', 'checkOut', 'numberOfNights', 'roomType', 'ratePlan', 'adults'];
+	
 	const [displayRoomTypes, setDisplayRoomTypes] = useState([])
-
 	const [open, setOpen] = useState(false);
 	const [dates, setDates] = useState(null);
-	const [selectedRatePlan, setSelectedRatePlan] = useState(null);
 	const ratePlans = useSelector(state => state.ratePlans.ratePlans);
-	const dispatch = useDispatch();
-
-    useEffect(() => {
-      dispatch(fetchRatePlans());
-    }, [dispatch]);
-
-	
 	const isEmailValid = validateEmail(formData.email);
 	const isPhoneNumberValid = validatePhoneNumber(formData.phoneNumber);
+	const isFormDataValid = requiredProperties.every((key) => Boolean(formData[key]) )
+	const [forcastData, setForcastData] = useState(null);
+	
+	const dispatch = useDispatch();
+	
+    useEffect(() => {
+		dispatch(fetchRatePlans());
+    }, [dispatch]);
+	
 
 	const handleFormChange = (value, key) => {
 		setFormData((prevFormData) => ({
@@ -130,20 +132,23 @@ function ReservationDetails({ roomTypes }) {
 	}
 
 
-	// const handleCreateNewReservation = async (roomType, ratePlan) => {
-	// 	try {
-	// 		const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/new`, 
-	// 		{
+	const handleCreateNewReservation = async (roomType, ratePlan) => {
+		try {
+				let response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/new`, 
+				{
+					...formData,
+					checkIn: formData.checkIn.format('YYYY-MM-DD'),
+					checkOut: formData.checkOut.format('YYYY-MM-DD'),
+				});
 
-	// 		});
-	// 	} catch(error) {
-	// 		console.log(error)
-	// 	}
-	// }
+				console.log(response);
+		} catch(error) {
+			console.log(error)
+		}
+	}
     
 
 	useEffect(() => {
-
 		if (formData.checkIn && formData.numberOfNights ) {
 			setFormData(
 				{
@@ -179,35 +184,48 @@ function ReservationDetails({ roomTypes }) {
 	}, [formData.checkIn])
 
 	useEffect(() => {
-		let datesTemp = [];
-		let tempDate = formData.checkIn.clone() // Create a copy of checkIn using clone()
+		if (formData.checkIn && formData.numberOfNights) {
+			let datesTemp = [];
+			let tempDate = formData.checkIn.clone() // Create a copy of checkIn using clone()
 
 
-		for (let i = 0; i < formData.numberOfNights; i++) {
-		  datesTemp.push(tempDate);
-		  tempDate = tempDate.add(1, 'day');
+			for (let i = 0; i < formData.numberOfNights; i++) {
+				datesTemp.push(tempDate);
+				tempDate = tempDate.add(1, 'day');
+			}
+
+			setDates(datesTemp);
 		}
 
-		// console.log('datestemp', datesTemp)
-	  
-		setDates(datesTemp);
-	  }, [formData.checkIn, formData.numberOfNights]);
-
+	}, [formData.checkIn, formData.numberOfNights]);
 
 	useEffect(() => {
-		console.log('roomTypes', roomTypes, ratePlans)
-	}, [roomTypes])
+		if (formData.checkIn && formData.numberOfNights && formData.checkOut && displayRoomTypes[0]) {
+			fetchAvailability()
+		}
+	}, [formData.checkIn, formData.numberOfNights, formData.checkOut, displayRoomTypes.length])
 
-	const handleRoomType = (event) => {
-		const {
-		  target: { value },
-		} = event;
+	const fetchAvailability = async () => {
+		try {
+			let response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/room/inventory`,
+			{
+				dateArray: dates.map(d => d.format('YYYY-MM-DD')),
+				roomTypeArray: displayRoomTypes.map(rt => rt.id)
+			})
 
-		setDisplayRoomTypes(
-		  // On autofill we get a stringified value.
-		  typeof value.name_short === Object ? value.split(',') : value,
-		);
-	  };
+			setForcastData(response.data);
+
+			console.log(response.data)
+
+		} catch(error) {
+			console.log(error);
+		}
+	} 
+
+	// useEffect(() => {
+	// 	console.log('roomTypes', roomTypes, ratePlans)
+	// }, [roomTypes])
+
 
   return (
     <>
@@ -222,7 +240,7 @@ function ReservationDetails({ roomTypes }) {
         <Dialog 
                 open={dialog} 
                 fullWidth
-                maxWidth={'lg'}
+                maxWidth={'xl'}
                 PaperProps={{
                     sx: {
                       height: '90%'
@@ -241,8 +259,8 @@ function ReservationDetails({ roomTypes }) {
 								borderRight:'1px solid grey'
 							}}
 						>
-							<Grid container direction="column" >
-								<Grid item my={1}>
+							<Grid container direction="column" spacing={2}>
+								<Grid item>
 									< LocalizationProvider dateAdapter={AdapterDayjs}>
 										<DatePicker 
 											label="Check In"
@@ -255,10 +273,13 @@ function ReservationDetails({ roomTypes }) {
 									</LocalizationProvider>
 								</Grid>
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										type="integer"
 										label="Number of Nights"
+										required
+										error={!formData.numberOfNights} // Check if checkOut is empty
+										// helperText={!formData.numberOfNights && 'Required'} // Display 'Required' when checkOut is empty
 										fullWidth={true}
 										variant="outlined"
 										size="small"
@@ -268,7 +289,7 @@ function ReservationDetails({ roomTypes }) {
 								</Grid>
 								
 
-								<Grid item my={1}>
+								<Grid item >
 									< LocalizationProvider dateAdapter={AdapterDayjs}>
 										<DatePicker 
 											label="Check Out"
@@ -282,9 +303,9 @@ function ReservationDetails({ roomTypes }) {
 									</LocalizationProvider>
 								</Grid>
 
-								< Divider/>
+								
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										label="Last Name"
@@ -294,7 +315,7 @@ function ReservationDetails({ roomTypes }) {
 										onChange={(e) => handleFormChange(e.target.value, 'lastName')}
 									/>
 								</Grid>
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										label="First Name"
@@ -305,9 +326,9 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 
-								< Divider />
+								
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										type="integer"
@@ -319,7 +340,7 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										type="integer"
@@ -331,9 +352,9 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 
-								< Divider/>
+								
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										type={"email"}
@@ -347,7 +368,7 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										label="Phone Number"
@@ -360,7 +381,7 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 
-								<Grid item my={1}>
+								<Grid item >
 									<TextField
 										fullWidth={true}
 										label="Note"
@@ -416,7 +437,7 @@ function ReservationDetails({ roomTypes }) {
 											{displayRoomTypes.map((rt) => (
 												<React.Fragment key={rt.id}>
 
-												<TableRow sx={{  }}>
+												<TableRow >
 													<TableCell sx={{ fontWeight:'bold' }}>
 														<IconButton
 														aria-label="expand row"
@@ -428,6 +449,7 @@ function ReservationDetails({ roomTypes }) {
 													
 														{rt.name_short}
 													</TableCell>
+													
 												</TableRow>
 												<TableRow>
 													<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -436,11 +458,50 @@ function ReservationDetails({ roomTypes }) {
 															<Table size="small" stickyHeader>
 															<TableHead>
 																<TableRow>
-																<TableCell>Rate Plan</TableCell>
-																{
-																	dates && dates.map((d,i) => <TableCell key={i} >{ d.format('M/D') }</TableCell>)
-																}
+																	<TableCell 
+																		sx={{
+																			backgroundColor: '#f0f0f0 !important'
+																		}}
+																	>
+																		Remaining { rt.name_short } Inventory 
+																	</TableCell>
+																	{
+																		forcastData && forcastData.map((d,i) => {
+																			let inventoryData = d[Object.keys(d)[0]].find(rtData => rtData.room_type_id === rt.id);
+
+																			if (inventoryData) {
+																				return inventoryData.total_inventory - inventoryData.total_reservations > 0 ?
+																					<TableCell 
+																						key={i}
+																						sx={{
+																							color:'green !important',
+																							backgroundColor: '#f0f0f0 !important'
+																						}}
+																					>
+																						{ inventoryData.total_inventory - inventoryData.total_reservations }
+																					</TableCell>:
+																					<TableCell 
+																						key={i}
+																						sx={{
+																							color:'red !important',
+																							backgroundColor: '#f0f0f0 !important'
+																						}}
+																					>
+																						{ inventoryData.total_inventory - inventoryData.total_reservations }
+
+																					</TableCell>
+																			}
+																		})	
+																	}
 																</TableRow>
+
+																<TableRow>
+																	<TableCell>Rate Plan</TableCell>
+																	{
+																		dates && dates.map((d,i) => <TableCell key={i} sx={{fontWeight: 'bold'}} >{ d.format('M/D') }</TableCell>)
+																	}
+																</TableRow>
+
 															</TableHead>
 															<TableBody >
 																	{
@@ -520,7 +581,8 @@ function ReservationDetails({ roomTypes }) {
 						<Grid item px={2}>
                             <Button 
                                 variant='contained'
-                                onClick={() => setDialog(false)}
+								disabled={!isFormDataValid}
+                                onClick={() => handleCreateNewReservation()}
                             >Create</Button>
                         </Grid>
 
@@ -531,77 +593,5 @@ function ReservationDetails({ roomTypes }) {
     </>
   );
 }
-
-function Row(props) {
-	const { roomType, ratePlans, checkIn, numberOfNights } = props;
-	const [open, setOpen] = useState(false);
-
-	const [dates, setDates] = useState(null);
-
-	useEffect(() => {
-		let datesTemp = [];
-		let tempDate = checkIn.clone(); // Create a copy of checkIn using clone()
-	  
-		for (let i = 0; i < numberOfNights; i++) {
-		  datesTemp.push(tempDate);
-		  tempDate.add(1, 'day');
-		}
-	  
-		setDates(datesTemp);
-	  }, [checkIn, numberOfNights]);
-	  
-	return (
-	  <React.Fragment>
-		<TableRow sx={{  }}>
-		  <TableCell sx={{ fontWeight:'bold' }}>
-			<IconButton
-			  aria-label="expand row"
-			  size="small"
-			  onClick={() => setOpen(!open)}
-			>
-			  {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-			</IconButton>
-		  
-			{roomType.name_short}
-		  </TableCell>
-		</TableRow>
-		<TableRow>
-		  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-			<Collapse in={open} timeout="auto" unmountOnExit>
-			  <Box sx={{ margin: 1, overflow: 'auto', maxHeight:'200px' }}>
-				<Table size="small" stickyHeader>
-				  <TableHead>
-					<TableRow>
-					  <TableCell>Rate Plan</TableCell>
-					  {
-						dates && dates.map((d,i) => <TableCell key={i} >{ d.format('M/D') }</TableCell>)
-					  }
-					</TableRow>
-				  </TableHead>
-				  <TableBody >
-						{
-							ratePlans && ratePlans.filter(rt => rt.room_type_id == roomType.id ).map(rt => 
-								<TableRow key={rt.id} scope="row" hover>
-									<TableCell>
-										{ rt.name }
-									</TableCell>
-									{
-										dates && dates.map((d,i) => 
-										<TableCell key={i}>
-											${ rt.base_price }
-										</TableCell>)
-									}
-								</TableRow>
-							)
-						}
-				  </TableBody>
-				</Table>
-			  </Box>
-			</Collapse>
-		  </TableCell>
-		</TableRow>
-	  </React.Fragment>
-	);
-  }
 
 export default ReservationDetails;

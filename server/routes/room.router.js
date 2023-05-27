@@ -118,142 +118,73 @@ router.get('/roomlist', async(req,res) => {
 });
 
 // actually just a get request
-router.post('/inventory', async(req,res) => {
-    try {
-
-        const { date, dateArray } = req.body;
-
-        const totalInventoryQuery = 
-        `
-        SELECT room_type.id, room_type.name_short, count(*) FROM room
-            LEFT JOIN room_type ON room.room_type_id = room_type.id
-            WHERE inventory_status = 'available'
-            GROUP BY room_type.id, room_type.name_short;
-        `;
-
-        let bookedInventoryQuery = 
-            `
-            SELECT COUNT(room_type.id), room_type.name_short, room_type.id 
-            FROM room_type
-            LEFT JOIN reservation ON room_type.id = reservation.room_type_id 
-            WHERE reservation.check_in <= $1 AND 
-                reservation.check_out > $1 AND 
-                reservation.status != 'cancelled' AND
-                reservation.status != 'checked_out'
-            GROUP BY  room_type.name_short, room_type.id
-            ORDER BY room_type.id ASC
-            `;
-
-        const roomTypeQuery = 
-        `
-        SELECT *
-        FROM room_type
-        ORDER BY id ASC;
-        `;
-
-        
-        let bookedInventory = {};
-        
-        if (dateArray) {
-            for (let i = 0; i < dateArray.length;  i ++) {
-                let { rows } = await pool.query(bookedInventoryQuery, [dateArray[i]]);
-                
-                bookedInventory[dateArray[i]] = rows;
-                
-            }
-        } else {
-            const { rows } = await pool.query(bookedInventoryQuery, date);
-            
-            bookedInventory[date] = rows;
-        }
-        
-        
-        const { rows: totalInventory } = await pool.query(totalInventoryQuery);
-        const { rows: roomTypes } = await pool.query(roomTypeQuery);
-
-        res.send({
-            totalInventory,
-            bookedInventory,
-            roomTypes
-        });
-
-
-    }catch(error) {
-        console.log(error)
-        res.sendStatus(400);
-    }
-});
-
-
-// router.post('/assign', async(req,res) => {
-//     const client = await pool.connect();
-    
+// router.post('/inventory', async(req,res) => {
 //     try {
 
-//         const { room_id, reservation_id, room_type_id } = req.body;
+//         const { date, dateArray } = req.body;
 
+//         const totalInventoryQuery = 
+//         `
+//         SELECT room_type.id, room_type.name_short, count(*) FROM room
+//             LEFT JOIN room_type ON room.room_type_id = room_type.id
+//             WHERE inventory_status = 'available'
+//             GROUP BY room_type.id, room_type.name_short;
+//         `;
 
-//         await client.query('BEGIN;')
+//         let bookedInventoryQuery = 
+//             `
+//             SELECT COUNT(room_type.id), room_type.name_short, room_type.id 
+//             FROM room_type
+//             LEFT JOIN reservation ON room_type.id = reservation.room_type_id 
+//             WHERE reservation.check_in <= $1 AND 
+//                 reservation.check_out > $1 AND 
+//                 reservation.status != 'cancelled' AND
+//                 reservation.status != 'checked_out'
+//             GROUP BY  room_type.name_short, room_type.id
+//             ORDER BY room_type.id ASC
+//             `;
 
+//         const roomTypeQuery = 
+//         `
+//         SELECT *
+//         FROM room_type
+//         ORDER BY id ASC;
+//         `;
 
-
-//         const room = await client.query(
-//             `   Select * FROM room
-//                 WHERE id = $1
-//                 LIMIT 1;
-//             `,[room_id])
-
-
-
-//         if (room.rows[0].reservation_id) { // remove previously assigned room from reservation so I can assign the room to the new reservation
-//             await client.query(
-//             `   UPDATE reservation
-//                 SET room_id = NULL
-//                 WHERE id = $1;
-//             `,[room.rows[0].reservation_id])
-//         }
-
-
-//         const reservation = await client.query( //  assigning the room to new reservation
-//         `   Select * FROM reservation
-//             WHERE id = $1;
-//         `,[reservation_id]);
-
-//         if (reservation.rows[0].room_id) { // unassign old room if there was a room already assigned
-//             await client.query( 
-//             `   UPDATE ROOM
-//                 SET reservation_id = NULL,
-//                     guest_id = NULL
-//                 WHERE id = $1
-//             `,[reservation.rows[0].room_id]);
-//         };
-
-
-//         await client.query( //  assigning room to reservation record
-//         `   UPDATE reservation
-//             SET room_id = $1,
-//                 room_type_id = $2
-//             WHERE id = $3
-//             RETURNING guest_id;
-//         `,[room_id, room_type_id, reservation_id])
-   
-//         await client.query( // assigning reservation and guest to the room record
-//         `   UPDATE room
-//             SET reservation_id = $1,
-//                 guest_id = $2
-//             WHERE id = $3;
-//         `,[reservation_id, reservation.rows[0].guest_id, room_id])
         
-//         await client.query('COMMIT;')
+//         let bookedInventory = {};
+        
+//         if (dateArray) {
+//             for (let i = 0; i < dateArray.length;  i ++) {
+//                 let { rows } = await pool.query(bookedInventoryQuery, [dateArray[i]]);
+                
+//                 bookedInventory[dateArray[i]] = rows;
+                
+//             }
+//         } else {
+//             const { rows } = await pool.query(bookedInventoryQuery, date);
+            
+//             bookedInventory[date] = rows;
+//         }
+        
+        
+//         const { rows: totalInventory } = await pool.query(totalInventoryQuery);
+//         const { rows: roomTypes } = await pool.query(roomTypeQuery);
 
-//         res.sendStatus(200);
+//         res.send({
+//             totalInventory,
+//             bookedInventory,
+//             roomTypes
+//         });
+
 
 //     }catch(error) {
-//         await client.query('ROLLBACK');
 //         console.log(error)
 //         res.sendStatus(400);
 //     }
 // });
+
+
 
 router.post('/assign', async(req,res) => {
     const client = await pool.connect();
@@ -295,6 +226,72 @@ router.post('/assign', async(req,res) => {
         await client.query('COMMIT;')
 
         res.sendStatus(200);
+
+    }catch(error) {
+        await client.query('ROLLBACK');
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
+router.post('/inventory', async(req,res) => {
+    const client = await pool.connect();
+
+    try {
+        const { dateArray, roomTypeArray} = req.body;
+
+
+        const roomTypeForcastQuery = 
+        `SELECT
+        rt.id AS room_type_id,
+        COALESCE(total_reservations, 0) AS total_reservations,
+        COALESCE(total_inventory, 0) AS total_inventory
+    FROM
+        room_type rt
+        LEFT JOIN (
+            SELECT
+                room_type_id,
+                COUNT(*) AS total_reservations
+            FROM
+                reservation
+            WHERE
+                check_in <= $1
+                AND check_out > $1
+            GROUP BY
+                room_type_id
+        ) AS r ON rt.id = r.room_type_id
+        LEFT JOIN (
+            SELECT
+                room_type_id,
+                COUNT(*) AS total_inventory
+            FROM
+                room
+            GROUP BY
+                room_type_id
+        ) AS ri ON rt.id = ri.room_type_id
+        WHERE
+            rt.id = ANY($2);
+        `
+        
+
+        await client.query('BEGIN;')
+
+        let forcastData = [];
+
+        for (const date of dateArray) {
+            let { rows } = await client.query(
+                roomTypeForcastQuery,
+                [date, roomTypeArray]
+            );
+
+            forcastData.push({
+                [date]: rows
+            });
+        }
+
+        await client.query('COMMIT;')
+
+        res.status(200).send(forcastData);
 
     }catch(error) {
         await client.query('ROLLBACK');
