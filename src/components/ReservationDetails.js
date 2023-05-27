@@ -132,13 +132,14 @@ function ReservationDetails({ roomTypes }) {
 	}
 
 
-	const handleCreateNewReservation = async (roomType, ratePlan) => {
+	const handleCreateNewReservation = async () => {
 		try {
 				let response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/new`, 
 				{
 					...formData,
 					checkIn: formData.checkIn.format('YYYY-MM-DD'),
 					checkOut: formData.checkOut.format('YYYY-MM-DD'),
+					dates: dates.map(d => d.format('YYYY-MM-DD'))
 				});
 
 				console.log(response);

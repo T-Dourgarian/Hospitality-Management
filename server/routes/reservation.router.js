@@ -243,29 +243,85 @@ router.get('/single/:reservation_id', async (req,res) => {
 //     note: ''
 // })
 router.post('/new', async (req,res) => {
+    const client = await pool.connect();
+
     try {
 
+        client.query('BEGIN;')
 
+        const { lastName, firstName, email, phoneNumber, checkIn, checkOut, numberOfNights, roomType, ratePlan, adults, children, note, dates } = req.body;
 
-        const { lastName, firstName, email, phoneNumber, checkIn, checkOut, numberOfNights, roomType, ratePlan, adults, children, note } = req.params;
+        const guestQuery = `
+            SELECT id 
+            FROM guest
+            WHERE email = $1; 
+        `;
 
-            // guest check / insert
-        // const  = 
-        // `
-        //     INSERT 
-        // `
+        const insertReservationQuery = `
+        INSERT INTO public.reservation(
+            guest_id, check_in, check_out, average_rate, property_id,  cancelled, notes, room_type_id, num_of_nights, status, adults, kids, rate_plan_id, created_by)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            RETURNING id;
+        `;
         
-        pool.query(queryText, [reservation_id])
-        .then(result => {
-            res.send(result.rows[0]);
-        })
-        .catch(error => {
-            console.log(error);
-            res.sendStatus(500);
-        });
+        const insertInvoicesQuery = `
+            INSERT INTO public.invoice(
+                reservation_id, guest_id, total, amount_paid, property_id, invoice_type_id)
+                VALUES ($1, $2, 0.00, 0.00, 1, 1),
+                    ($1, $2, 0.00, 0.00, 1, 2),
+                    ($1, $2, 0.00, 0.00, 1, 3),
+                    ($1, $2, 0.00, 0.00, 1, 4);
+        `;
+
+
+        const insertStayDetailsQuery = `
+                INSERT INTO stay_details
+                    (reservation_id, rate, date)
+                VALUES ($1, $2, $3);`;
+
+        let { rows: guest } = await client.query(guestQuery, [email]);
+
+        let guest_id;
+
+        if (!guest[0]) {
+            const guestInsertQuery = `
+                INSERT INTO public.guest(
+                    first_name, last_name,email, phone_number, property_id, created_by)
+                    VALUES  ($1, $2, $3, $4, $5, $6)
+                    RETURNING id;
+            `
+
+            const { rows: newGuest } = await client.query(guestInsertQuery, [firstName, lastName, email, phoneNumber, 1, 1]);
+
+            guest_id = newGuest[0].id
+        } else {
+            guest_id = guest[0].id;
+        }
+
+        let { rows: reservation } = await client.query(
+            insertReservationQuery,
+            [ guest_id, checkIn, checkOut, ratePlan.base_price, 1, false, note, roomType.id, numberOfNights, 'reserved', adults, children, ratePlan.id, 1]
+        );
+
+
+        const reservation_id = reservation[0].id
+
+        await client.query(insertInvoicesQuery, [reservation_id, guest_id] )
+
+
+        for (const date of dates) {
+            await client.query(insertStayDetailsQuery, [reservation_id, ratePlan.base_price, date])
+        }
+              
+
+      
+
+        await client.query('COMMIT;')
+        res.sendStatus(200);
         
     
     }catch(error) {
+        client.query('ROLLBACK;')
         console.log(error)
         res.sendStatus(400);
     }

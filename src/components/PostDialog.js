@@ -78,18 +78,18 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
     const [dialog, setDialog] = useState(false);
     
     const filterTransactions = () => {
-        let txns = reservation.transactions.filter(txn => txn.f1.invoice_id === selectedInvoice.f1.id);
+        if (reservation.transactions) {
+            let txns = reservation.transactions.filter(txn => txn.f1.invoice_id === selectedInvoice.f1.id);
 
-        // txns.sort((a,b) => {
-        //     return new Date(a.f1.created_at) - new Date(b.f1.created_at)
-        // })
-
-        txns.sort((a,b) => {
-            return new Date(b.f1.id) - new Date(a.f1.id)
-        })
+            txns.sort((a,b) => {
+                return new Date(b.f1.id) - new Date(a.f1.id)
+            })
 
 
-        setTransactions(txns);
+            setTransactions(txns);
+        } else {
+            setTransactions([])
+        }
 
     };
 
@@ -106,7 +106,9 @@ function PostDialog({ reservation_id, reservation, fetchReservationData }) {
     }
 
     useEffect(() => {
+
         filterTransactions();
+        
     },[selectedInvoice.f1.id])
 
     // const dispatch = useDispatch();

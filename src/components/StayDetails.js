@@ -58,8 +58,11 @@ function StayDetails({ stay_details, reservation_id, fetchReservationData }) {
                 updateIds.filter(u => u !== id)
             )
         } else {
-            setUpdateIds([...updateIds, id])
+            setUpdateIds((prevData) => {
+                return [...prevData, id]
+            })
         }
+
     }
 
 
@@ -199,11 +202,12 @@ function StayDetails({ stay_details, reservation_id, fetchReservationData }) {
                                             key={s.id} 
                                             hover={true}
                                             onClick={() => handleRowSelect(s.id)}
-                                            sx={{
-                                                borderLeft: updateIds.includes(s.id) ? '2px solid red !important' : ''
-                                            }}
                                         >
-                                            <TableCell>
+                                            <TableCell
+                                                sx={{
+                                                    borderLeft: updateIds.includes(s.id) ? '2px solid red !important' : ''
+                                                }}
+                                            >
                                                 { s.id }
                                             </TableCell>
                                             <TableCell>
