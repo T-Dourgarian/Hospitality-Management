@@ -227,4 +227,34 @@ router.get('/single/:reservation_id', async (req,res) => {
     }
 });
 
+
+router.post('/new', async (req,res) => {
+    try {
+
+
+
+        const { reservation_id } = req.params;
+
+
+        const queryText = 
+        `
+
+        `
+        
+        pool.query(queryText, [reservation_id])
+        .then(result => {
+            res.send(result.rows[0]);
+        })
+        .catch(error => {
+            console.log(error);
+            res.sendStatus(500);
+        });
+        
+    
+    }catch(error) {
+        console.log(error)
+        res.sendStatus(400);
+    }
+});
+
 module.exports = router;

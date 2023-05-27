@@ -97,12 +97,16 @@ function ReservationDetails({ roomTypes }) {
 		checkOut: '',
 		numberOfNights: '',
 		roomType: '',
+		ratePlan: '',
 		adults: 1,
 		children: 0,
 		note: ''
 	})
 	const [displayRoomTypes, setDisplayRoomTypes] = useState([])
 
+	const [open, setOpen] = useState(false);
+	const [dates, setDates] = useState(null);
+	const [selectedRatePlan, setSelectedRatePlan] = useState(null);
 	const ratePlans = useSelector(state => state.ratePlans.ratePlans);
 	const dispatch = useDispatch();
 
@@ -115,13 +119,27 @@ function ReservationDetails({ roomTypes }) {
 	const isPhoneNumberValid = validatePhoneNumber(formData.phoneNumber);
 
 	const handleFormChange = (value, key) => {
-		
-		setFormData({...formData, [key]: value})
+		setFormData((prevFormData) => ({
+			...prevFormData,
+			[key]: value,
+		  }));
 	}
 
 	const handle = (e, value) => {
 		setDisplayRoomTypes(value)
 	}
+
+
+	// const handleCreateNewReservation = async (roomType, ratePlan) => {
+	// 	try {
+	// 		const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/reservation/new`, 
+	// 		{
+
+	// 		});
+	// 	} catch(error) {
+	// 		console.log(error)
+	// 	}
+	// }
     
 
 	useEffect(() => {
@@ -159,6 +177,21 @@ function ReservationDetails({ roomTypes }) {
 			)
 		}
 	}, [formData.checkIn])
+
+	useEffect(() => {
+		let datesTemp = [];
+		let tempDate = formData.checkIn.clone() // Create a copy of checkIn using clone()
+
+
+		for (let i = 0; i < formData.numberOfNights; i++) {
+		  datesTemp.push(tempDate);
+		  tempDate = tempDate.add(1, 'day');
+		}
+
+		// console.log('datestemp', datesTemp)
+	  
+		setDates(datesTemp);
+	  }, [formData.checkIn, formData.numberOfNights]);
 
 
 	useEffect(() => {
@@ -356,7 +389,7 @@ function ReservationDetails({ roomTypes }) {
 										renderInput={(params) => (
 											<TextField
 											{...params}
-											label="Chip"
+											label="Room Types"
 											variant="outlined"
 											/>
 										)}
@@ -372,28 +405,101 @@ function ReservationDetails({ roomTypes }) {
 									/>
 								</Grid>
 								<Grid item>
-									<TableContainer component={Paper}>
+									<TableContainer component={Paper}   sx={{ overflow:'auto'}}>
 									<Table aria-label="collapsible table" size={'small'}>
 										<TableHead>
 											<TableRow>
-												<TableCell />
 												<TableCell>RoomType</TableCell>
 											</TableRow>
 										</TableHead>
 										<TableBody>
 											{displayRoomTypes.map((rt) => (
-												<Row
-													size={'small'} 
-													key={rt.id} 
-													roomType={rt} 
-													ratePlans={ratePlans} 
-													checkIn={formData.checkIn}
-													numberOfNights={formData.numberOfNights}
-												/>
+												<React.Fragment key={rt.id}>
+
+												<TableRow sx={{  }}>
+													<TableCell sx={{ fontWeight:'bold' }}>
+														<IconButton
+														aria-label="expand row"
+														size="small"
+														onClick={() => setOpen(rt.id)}
+														>
+														{open === rt.id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+														</IconButton>
+													
+														{rt.name_short}
+													</TableCell>
+												</TableRow>
+												<TableRow>
+													<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+														<Collapse in={open === rt.id} timeout="auto" unmountOnExit>
+														<Box sx={{ margin: 1, overflow: 'auto', maxHeight:'200px' }}>
+															<Table size="small" stickyHeader>
+															<TableHead>
+																<TableRow>
+																<TableCell>Rate Plan</TableCell>
+																{
+																	dates && dates.map((d,i) => <TableCell key={i} >{ d.format('M/D') }</TableCell>)
+																}
+																</TableRow>
+															</TableHead>
+															<TableBody >
+																	{
+																		ratePlans && ratePlans.filter(rp => rp.room_type_id === rt.id ).map(ratePlan => 
+																			<TableRow key={ratePlan.id} scope="row" hover
+																				onClick={() => {
+																					handleFormChange(rt, 'roomType');
+																					handleFormChange(ratePlan, 'ratePlan')
+																				}}
+																			>
+																				<TableCell>
+																					{ ratePlan.name }
+																				</TableCell>
+																				{
+																					dates && dates.map((d,i) => 
+																					<TableCell key={i}>
+																						${ ratePlan.base_price }
+																					</TableCell>)
+																				}
+																			</TableRow>
+																		)
+																	}
+															</TableBody>
+															</Table>
+														</Box>
+														</Collapse>
+													</TableCell>
+												</TableRow>
+												</React.Fragment>
 											))}
 										</TableBody>
 									</Table>
 									</TableContainer>
+								</Grid>
+							</Grid>
+						</Grid>
+						<Grid item width={'100%'}>
+							<Grid  container direction="row" spacing={3} justifyContent='flex-end'>
+
+								<Grid item>
+									<Typography sx={{ fontWeight:'bold' }}>
+										Room Type
+									</Typography> 
+									{ formData.roomType && formData.roomType.name_short  }
+								</Grid>
+
+								<Grid item>
+									<Typography sx={{ fontWeight:'bold' }}>
+										Avg Nightly Rate
+									</Typography> 
+									{ formData.ratePlan && formData.ratePlan.base_price  }
+								</Grid>
+
+
+								<Grid item>
+									<Typography sx={{ fontWeight:'bold' }}>
+										Rate Plan
+									</Typography> 
+									{ formData.ratePlan && formData.ratePlan.name  }
 								</Grid>
 							</Grid>
 						</Grid>
@@ -411,6 +517,13 @@ function ReservationDetails({ roomTypes }) {
                             >Cancel</Button>
                         </Grid>
 
+						<Grid item px={2}>
+                            <Button 
+                                variant='contained'
+                                onClick={() => setDialog(false)}
+                            >Create</Button>
+                        </Grid>
+
                        
                     </Grid>
                 </DialogActions>
@@ -426,23 +539,21 @@ function Row(props) {
 	const [dates, setDates] = useState(null);
 
 	useEffect(() => {
-
-		let datesTemp = []
-		let tempDate = checkIn;
-
+		let datesTemp = [];
+		let tempDate = checkIn.clone(); // Create a copy of checkIn using clone()
+	  
 		for (let i = 0; i < numberOfNights; i++) {
-			datesTemp.push(tempDate);
-			tempDate.add(1, 'day');
+		  datesTemp.push(tempDate);
+		  tempDate.add(1, 'day');
 		}
-
+	  
 		setDates(datesTemp);
-
-	}, [checkIn, numberOfNights])
-  
+	  }, [checkIn, numberOfNights]);
+	  
 	return (
 	  <React.Fragment>
-		<TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-		  <TableCell>
+		<TableRow sx={{  }}>
+		  <TableCell sx={{ fontWeight:'bold' }}>
 			<IconButton
 			  aria-label="expand row"
 			  size="small"
@@ -450,16 +561,15 @@ function Row(props) {
 			>
 			  {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 			</IconButton>
-		  </TableCell>
-		  <TableCell component="th" scope="row" sx={{ fontWeight:'bold'}}>
+		  
 			{roomType.name_short}
 		  </TableCell>
 		</TableRow>
 		<TableRow>
 		  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
 			<Collapse in={open} timeout="auto" unmountOnExit>
-			  <Box sx={{ margin: 1 }}>
-				<Table size="small" aria-label="purchases">
+			  <Box sx={{ margin: 1, overflow: 'auto', maxHeight:'200px' }}>
+				<Table size="small" stickyHeader>
 				  <TableHead>
 					<TableRow>
 					  <TableCell>Rate Plan</TableCell>
@@ -471,14 +581,14 @@ function Row(props) {
 				  <TableBody >
 						{
 							ratePlans && ratePlans.filter(rt => rt.room_type_id == roomType.id ).map(rt => 
-								<TableRow key={rt.id} component="th" scope="row" hover>
+								<TableRow key={rt.id} scope="row" hover>
 									<TableCell>
 										{ rt.name }
 									</TableCell>
 									{
-										dates && dates.map(d => 
-										<TableCell>
-											{ rt.base_price }
+										dates && dates.map((d,i) => 
+										<TableCell key={i}>
+											${ rt.base_price }
 										</TableCell>)
 									}
 								</TableRow>
