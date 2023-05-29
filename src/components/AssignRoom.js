@@ -85,7 +85,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
     const [confirmRoomTypeSwitch, setConfirmRoomTypeSwitch] = useState(false);
     const [confirmReAssignRoom, setConfirmReAssignRoom] = useState(false);
     const [assignDialog, setAssignDialog] = useState(false);
-    const [localRoomList, setLocalRoomList] = useState(roomList);
+    const [localRoomList, setLocalRoomList] = useState(null);
     const [updateFlag, setUpdateFlag] = useState(false);
 
 
@@ -149,8 +149,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
       try {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
         setLocalRoomList(response.data)
-
-        setUpdateFlag(!updateFlag);
+        // filterRoomList();
       } catch(error) {
         console.log(error);
       }
@@ -204,9 +203,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
       }
     }
     
-
-
-    useEffect(() => {
+    const filterRoomList = () => {
       if (localRoomList) {
         let statusFilter = [];
 
@@ -241,7 +238,15 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
         setFilteredRoomList(newRoomList);
       }
-    }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks), updateFlag])
+    }
+
+    useEffect(() => {
+      filterRoomList()
+    }, [showClean, showDirty, showTurning, showVacant, showOccupied, JSON.stringify(roomTypeChecks), localRoomList])
+
+    useEffect(() => {
+      resetLocalRoomList();
+    }, [])
 
 
     return (
