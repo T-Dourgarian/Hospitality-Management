@@ -69,7 +69,7 @@ const statusCellStyle = (r) => {
   }
 }
 
-function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList, roomTypes }) {
+function AssignRoom({ reservation, setReservationLocal, roomList, roomTypes, setDialog}) {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -86,7 +86,6 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
     const [confirmReAssignRoom, setConfirmReAssignRoom] = useState(false);
     const [assignDialog, setAssignDialog] = useState(false);
     const [localRoomList, setLocalRoomList] = useState(null);
-    const [updateFlag, setUpdateFlag] = useState(false);
 
 
     const handleAssignOpen = (room) => {
@@ -148,6 +147,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
     const resetLocalRoomList = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/room/all`);
+		console.log(response.data.find(r => r.number == 21))
         setLocalRoomList(response.data)
         // filterRoomList();
       } catch(error) {
@@ -180,8 +180,8 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
         resetLocalRoomList();
 
+		setDialog(false);
 
-        setUpdateMade(true);
 
       } catch(error) {
         console.log(error);
@@ -250,6 +250,20 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
 
     return (
+
+		<Dialog 
+			open={true}
+			maxWidth={'xl'}
+			PaperProps={{
+				sx: {
+				  height: '90%'
+				}
+			  }}
+		>
+			
+			<DialogContent >
+				
+				
         <Grid container direction="column" >
             <Grid item>
               <Grid 
@@ -280,7 +294,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
               </Grid>
             </Grid>
             <Grid>
-              <Collapse in={expanded} timeout="auto" unmountOnExit>
+              
 
                 <Grid container direction="row">
                   <Grid item>
@@ -376,7 +390,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
 
                 </Grid>
 
-                <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                <Paper sx={{ width: '100%', overflow: 'hidden'}}>
                 <TableContainer  sx={{ maxHeight: 440 }}>
                   <Table stickyHeader size="small" aria-label="simple table"  >
                       <TableHead>
@@ -412,7 +426,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
                                         item
                                       >
                                         {
-                                          r.guest_id && 
+                                          r.pre_assigned_reservation_id && 
                                           <Tooltip 
                                             title={`${r.last_name}, ${r.first_name} ${r.dnm ? r.dnm : ''}`}
                                             placement="top"
@@ -445,7 +459,6 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
                   </Table>
                 </TableContainer>
                 </Paper>
-              </Collapse>
             </Grid>
 
             <Dialog
@@ -495,7 +508,7 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
                     }
 
                     {
-                      roomToAssign.guest_id &&
+                    	roomToAssign.pre_assigned_reservation_id &&
                       <Box>
                         <FormControlLabel
                           control={
@@ -524,6 +537,20 @@ function AssignRoom({ reservation, setReservationLocal, setUpdateMade, roomList,
             </Dialog>
 
         </Grid>
+			</DialogContent>
+			<DialogActions>
+				<Grid container justifyContent={'space-between'}>
+				
+					<Grid item px={2}>
+						<Button 
+							variant='outlined'
+							onClick={() => setDialog(false)}
+						>Cancel</Button>
+					</Grid>
+
+				</Grid>
+			</DialogActions>
+		</Dialog>
     );
   }
   

@@ -9,6 +9,10 @@ const pool = require('../pool')
 router.get('/all', async(req,res) => {
     try {
 
+        const date = new Date();
+        const TODAY_YYYYMMDD = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+
+
         const queryText = 
         `
         SELECT 
@@ -17,17 +21,19 @@ router.get('/all', async(req,res) => {
             room_status_type.name_short AS status_name_short,
             room_status_type.name AS status_name,
             reservation.dnm as dnm,
+            reservation.id as pre_assigned_reservation_id,
+            reservation.guest_id as pre_assigned_guest_id,
             guest.first_name,
             guest.last_name
         FROM room
         LEFT JOIN room_type ON room.room_type_id = room_type.id
         LEFT JOIN room_status_type ON room.status_type_id = room_status_type.id        
-        LEFT JOIN reservation on room.reservation_id = reservation.id
-        LEFT JOIN guest on room.guest_id = guest.id
+        LEFT JOIN reservation on room.id = reservation.room_id AND reservation.check_in = $1
+        LEFT JOIN guest on reservation.guest_id = guest.id
         ORDER BY room.number ASC
         `;
         
-        pool.query(queryText)
+        pool.query(queryText, [TODAY_YYYYMMDD])
             .then(result => {
                 res.send(result.rows);
             })
@@ -195,31 +201,11 @@ router.post('/assign', async(req,res) => {
         await client.query('BEGIN;')
 
         await client.query(
-            `WITH unassign AS (
-                UPDATE room
-                SET reservation_id = NULL,
-                    guest_id = NULL
-                WHERE id = (
-                    SELECT room_id FROM reservation
-                    WHERE id = $1
-                    )
-                ),room_assignment AS (
-                SELECT room.*
-                FROM room
-                WHERE id = $2
-                FOR UPDATE
-            ), guest_assignment AS (
+            `
                 UPDATE reservation
                 SET room_id = $2,
                     room_type_id = $3
-                WHERE id = $1
-                RETURNING guest_id
-            )
-            UPDATE room
-            SET reservation_id = $1,
-                guest_id = guest_assignment.guest_id
-            FROM guest_assignment
-            WHERE id = $2;
+                WHERE id = $1;
             `,
             [reservation_id, room_id, room_type_id]
         );

@@ -228,20 +228,7 @@ router.get('/single/:reservation_id', async (req,res) => {
 });
 
 
-// const [formData, setFormData] = useState({
-//     lastName: '',
-//     firstName: '',
-//     email: '',
-//     phoneNumber: '',
-//     checkIn: dayjs(today),
-//     checkOut: '',
-//     numberOfNights: '',
-//     roomType: '',
-//     ratePlan: '',
-//     adults: 1,
-//     children: 0,
-//     note: ''
-// })
+
 router.post('/new', async (req,res) => {
     const client = await pool.connect();
 
@@ -280,6 +267,8 @@ router.post('/new', async (req,res) => {
                 VALUES ($1, $2, $3);`;
 
         let { rows: guest } = await client.query(guestQuery, [email]);
+
+        console.log('guest', guest)
 
         let guest_id;
 

@@ -35,6 +35,8 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
     const [reservation, setReservation] = useState(null);
     const [reservationLocal, setReservationLocal] = useState(null);
     const [grandTotalCalc, setGrandTotalCalc] = useState('')
+    const [assignDialog, setAssignDialog] = useState(false);
+	const [checkingIn, setCheckingIn] = useState(false);
 
 
     const fetchReservationData = async () => {
@@ -101,13 +103,21 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
     const handleCheckIn = async () => {
       try {
 
-        let d = new Date();
-        let currentTime = d.toLocaleTimeString();
+		setCheckingIn(true);
 
-        const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
-          reservation_id: reservationLocal.reservation_id,
-          checkInTime: currentTime
-        })
+        if (reservationLocal.room_number && reservationLocal.room_status === 'Clean') {
+			// setCheckInStep('authorization')
+        } else {
+			setAssignDialog(true);
+		}
+
+        // let d = new Date();
+        // let currentTime = d.toLocaleTimeString();
+
+        // const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
+        //   reservation_id: reservationLocal.reservation_id,
+        //   checkInTime: currentTime
+        // })
 
 
         
@@ -115,6 +125,14 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
         console.log(error);
       }
     };
+
+	useEffect(() => {
+		if (checkingIn && !assignDialog) {
+			// setAuthDialog(true)
+
+			console.log('here')
+		}
+	}, [assignDialog])
 
     const handleCheckOut = async () => {
       try {
@@ -152,6 +170,16 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                     }}  
                   >
                     {reservationLocal.last_name}, {reservationLocal.first_name}  - { reservationLocal.status.replace('_',' ') } - { reservation.reservation_id }
+
+                    {
+                        isCheckIn(reservation) &&
+                        <Button 
+                            onClick={handleCheckIn}               
+                            variant="contained"
+                            size="small"
+                            // disabled={!Number.isInteger(reservationLocal.room_number)}
+                        > Check In</Button>
+                    }
 
                   </Grid>
                   <Grid item>
@@ -194,6 +222,9 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                               </div>
                               <div className='ReservationModalData'>
                                   { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' }
+								  <Button size='small' onClick={() => setAssignDialog(true)}>
+									Assign
+								  </Button>
                               </div>
                           </Grid>
                           <Grid item>
@@ -282,7 +313,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                       <Divider />
                     </Grid>
                     <Grid item>
-                      <AssignRoom reservation={reservationLocal} setReservationLocal={setReservationLocal} setUpdateMade={setUpdateMade} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes}/>
+                      
                     </Grid>
                     <Grid item py={2}>
                       <Divider />
@@ -315,20 +346,15 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
               
             </Grid>
 
+            {
+              assignDialog && 
+              <AssignRoom reservation={reservationLocal} setReservationLocal={setReservationLocal} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} setDialog={setAssignDialog}/>
+            }
             
           
           
             <Grid container>
               
-              
-              {
-                  isCheckIn(reservation) &&
-                  <Button 
-                      onClick={handleCheckIn}               
-                      variant="contained"
-                      disabled={!Number.isInteger(reservationLocal.room_number)}
-                  > Check In</Button>
-              }
 
               {
                   isCheckOut(reservation) &&
