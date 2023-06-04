@@ -268,8 +268,6 @@ router.post('/new', async (req,res) => {
 
         let { rows: guest } = await client.query(guestQuery, [email]);
 
-        console.log('guest', guest)
-
         let guest_id;
 
         if (!guest[0]) {
@@ -280,7 +278,7 @@ router.post('/new', async (req,res) => {
                     RETURNING id;
             `
 
-            const { rows: newGuest } = await client.query(guestInsertQuery, [firstName, lastName, email, phoneNumber, 1, 1]);
+            const { rows: newGuest } = await client.query(guestInsertQuery, [firstName, lastName, email.toLowerCase(), phoneNumber, 1, 1]);
 
             guest_id = newGuest[0].id
         } else {

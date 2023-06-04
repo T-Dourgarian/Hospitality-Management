@@ -27,6 +27,7 @@ import AssignRoom from './AssignRoom';
 import Additionals from './Additionals';
 import FolioSummary from './FolioSummary';
 import StayDetails from './StayDetails';
+import CCAuth from './CCAuth';
 
 function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } ) {
     const [open, setOpen] = useState(false);
@@ -37,6 +38,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
     const [grandTotalCalc, setGrandTotalCalc] = useState('')
     const [assignDialog, setAssignDialog] = useState(false);
 	const [checkingIn, setCheckingIn] = useState(false);
+	const [ccAuthDialog, setCCAuthDialog] = useState(false);
 
 
     const fetchReservationData = async () => {
@@ -129,8 +131,9 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 	useEffect(() => {
 		if (checkingIn && !assignDialog) {
 			// setAuthDialog(true)
+			// console.log('here')
+		} else {
 
-			console.log('here')
 		}
 	}, [assignDialog])
 
@@ -181,6 +184,12 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                         > Check In</Button>
                     }
 
+					<Button
+						onClick={() => setCCAuthDialog(true)}
+					>
+						setCCAuthDialog
+					</Button>
+
                   </Grid>
                   <Grid item>
                     <Grid container spacing={2}>
@@ -221,10 +230,12 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
                                   Room # { reservation.dnm &&  'DNM' }
                               </div>
                               <div className='ReservationModalData'>
-                                  { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' }
-								  <Button size='small' onClick={() => setAssignDialog(true)}>
-									Assign
-								  </Button>
+                                  { reservationLocal.room_number ? reservationLocal.room_number : 'Unassigned' } - {  reservationLocal.room_status && reservationLocal.room_status }
+								  <Box>
+									<Button size='small' onClick={() => setAssignDialog(true)}>
+										Assign
+									</Button>
+								  </Box>
                               </div>
                           </Grid>
                           <Grid item>
@@ -350,6 +361,32 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
               assignDialog && 
               <AssignRoom reservation={reservationLocal} setReservationLocal={setReservationLocal} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} setDialog={setAssignDialog}/>
             }
+
+			<Dialog
+				open={ccAuthDialog}
+				maxWidth={'xl'}
+				PaperProps={{
+					sx: {
+					  height: '90%'
+					}
+				  }}
+			>
+				<DialogContent>
+				  	<CCAuth />
+				</DialogContent>
+				<DialogActions>
+					<Grid container justifyContent={'space-between'}>
+					
+						<Grid item px={2}>
+							<Button 
+								variant='outlined'
+								onClick={() => setCCAuthDialog(false)}
+							>Cancel</Button>
+						</Grid>
+
+					</Grid>
+				</DialogActions>
+			</Dialog>
             
           
           

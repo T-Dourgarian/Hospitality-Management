@@ -201,11 +201,31 @@ router.post('/assign', async(req,res) => {
         await client.query('BEGIN;')
 
         await client.query(
-            `
+            `WITH unassign AS (
+                UPDATE room
+                SET reservation_id = NULL,
+                    guest_id = NULL
+                WHERE id = (
+                    SELECT room_id FROM reservation
+                    WHERE id = $1
+                    )
+                ),room_assignment AS (
+                SELECT room.*
+                FROM room
+                WHERE id = $2
+                FOR UPDATE
+            ), guest_assignment AS (
                 UPDATE reservation
                 SET room_id = $2,
                     room_type_id = $3
-                WHERE id = $1;
+                WHERE id = $1
+                RETURNING guest_id
+            )
+            UPDATE room
+            SET reservation_id = $1,
+                guest_id = guest_assignment.guest_id
+            FROM guest_assignment
+            WHERE id = $2;
             `,
             [reservation_id, room_id, room_type_id]
         );

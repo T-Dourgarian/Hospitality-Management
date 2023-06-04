@@ -20,6 +20,7 @@ const additionalRouter = require('./routes/additional.router');
 const invoiceRouter = require('./routes/invoice.router');
 const stayDetailsRouter = require('./routes/staydetails.router')
 const ratePlanRouter = require('./routes/ratePlan.router')
+const ccAuthRouter = require('./routes/ccAuth.router');
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -44,6 +45,8 @@ app.use('/api/v1/additional', additionalRouter);
 app.use('/api/v1/invoice', invoiceRouter);
 app.use('/api/v1/staydetails', stayDetailsRouter);
 app.use('/api/v1/rateplan', ratePlanRouter);
+app.use('/api/v1/ccauth', ccAuthRouter);
+
 
 
 // Serve static files
