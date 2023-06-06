@@ -199,7 +199,12 @@ router.get('/single/:reservation_id', async (req,res) => {
                 select json_agg(json_build_object('id', s.id, 'rate', s.rate::text, 'date', s.date))
                 from stay_details s
                 where s.reservation_id = $1
-            )   as stay_details
+            )   as stay_details,
+            (
+                select json_agg(json_build_object('id', cc.id, 'card_number', cc.card_number, 'authorization_amount', cc.authorization_amount, 'status', cc.status , 'notes', cc.notes, 'created_at', cc.created_at))
+                from cc_authorization cc
+                where cc.reservation_id = $1
+            )   as authorizations
         FROM 
             reservation
         LEFT join note ON note.reservation_id = reservation.id

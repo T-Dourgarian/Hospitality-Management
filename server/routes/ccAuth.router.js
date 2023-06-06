@@ -17,19 +17,19 @@ const pool = require('../pool')
 
         const queryText = `
         INSERT INTO public.cc_authorization(
-            guest_id, reservation_id, cardholder_name, card_number, expiration_date, authorization_amount, status, notes)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING *;
+            reservation_id, cardholder_name, card_number, expiration_date, authorization_amount, status, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING status;
         `
 
-        const { rows } = await pool.query(queryText, [guest_id, reservation_id, cardHolderName, cardNumber, expiration_date, amount, 'success', notes]);
+        const { rows } = await pool.query(queryText, [reservation_id, cardHolderName, cardNumber, expiration_date, amount, 'success', notes]);
 
 
         if (rows && rows[0]) {
-            res.status(200).json(rows[0])
+             return res.status(200).json({status: rows[0].status, message: 'Authorization success'})
         }
 
-        res.status(400).json({ success: false, message: 'Failed to authorize credit card' });
+        return res.status(400).json({ status: false, message: 'Failed to authorize credit card' });
       
     } catch (err) {
       console.error(err);

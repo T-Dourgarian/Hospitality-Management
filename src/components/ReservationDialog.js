@@ -364,7 +364,8 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 
 			<Dialog
 				open={ccAuthDialog}
-				maxWidth={'xl'}
+				maxWidth={'lg'}
+				fullWidth
 				PaperProps={{
 					sx: {
 					  height: '90%'
@@ -372,7 +373,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 				  }}
 			>
 				<DialogContent>
-				  	<CCAuth />
+				  	<CCAuth reservation={reservationLocal} authorizations={reservationLocal.authorizations} fetchReservationData={fetchReservationData}/>
 				</DialogContent>
 				<DialogActions>
 					<Grid container justifyContent={'space-between'}>
@@ -381,7 +382,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 							<Button 
 								variant='outlined'
 								onClick={() => setCCAuthDialog(false)}
-							>Cancel</Button>
+							>Close</Button>
 						</Grid>
 
 					</Grid>
