@@ -69,7 +69,7 @@ const statusCellStyle = (r) => {
   }
 }
 
-function AssignRoom({ reservation, setReservationLocal, roomList, roomTypes, setDialog}) {
+function AssignRoom({ reservation, setReservationLocal, roomList, roomTypes, setDialog, setCheckingIn, open}) {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -251,8 +251,8 @@ function AssignRoom({ reservation, setReservationLocal, roomList, roomTypes, set
 
     return (
 
-		<Dialog 
-			open={true}
+		<Dialog
+			open={open}
 			maxWidth={'xl'}
 			PaperProps={{
 				sx: {
@@ -544,7 +544,7 @@ function AssignRoom({ reservation, setReservationLocal, roomList, roomTypes, set
 					<Grid item px={2}>
 						<Button 
 							variant='outlined'
-							onClick={() => setDialog(false)}
+							onClick={() => { setCheckingIn(false); setDialog(false);} }
 						>Cancel</Button>
 					</Grid>
 

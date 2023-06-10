@@ -41,7 +41,9 @@ router.put('/checkin', async(req,res) => {
 
         await client.query('COMMIT;')
         
-        res.sendStatus(200)
+        res.status(200).json({
+            success: true
+        })
 
 
     }catch(error) {

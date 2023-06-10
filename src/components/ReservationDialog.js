@@ -39,6 +39,7 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
     const [assignDialog, setAssignDialog] = useState(false);
 	const [checkingIn, setCheckingIn] = useState(false);
 	const [ccAuthDialog, setCCAuthDialog] = useState(false);
+	const [checkInMessage, setCheckInMessage] = useState('');
 
 
     const fetchReservationData = async () => {
@@ -81,7 +82,43 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
       }
     }
 
+	const completeCheckIn = async () => {
+		try {
+
+			let d = new Date();
+			let currentTime = d.toLocaleTimeString();
+
+			const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
+				reservation_id: reservationLocal.reservation_id,
+				checkInTime: currentTime
+			});
+
+			if (response.data.status) {
+				setCheckInMessage('Check in success')
+				fetchReservationData();
+			} else {
+				setCheckInMessage('Check in failed')
+			}
+				
+			setCheckingIn(false);
+			setCCAuthDialog(false);
+
+			fetchReservationData();
+
+			
+
+		} catch(error) {
+			console.log(error)
+		}
+	}
+
     
+	useEffect(() => {
+		if (checkingIn && !assignDialog) {
+			setCCAuthDialog(true);
+		}
+	}, [assignDialog])
+
     useEffect(() => {
       fetchReservationData();
     }, [reservation_id])
@@ -108,34 +145,17 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 		setCheckingIn(true);
 
         if (reservationLocal.room_number && reservationLocal.room_status === 'Clean') {
-			// setCheckInStep('authorization')
+			setCCAuthDialog(true)
         } else {
 			setAssignDialog(true);
 		}
-
-        // let d = new Date();
-        // let currentTime = d.toLocaleTimeString();
-
-        // const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/status/checkin`, {
-        //   reservation_id: reservationLocal.reservation_id,
-        //   checkInTime: currentTime
-        // })
-
-
         
       } catch (error) {
         console.log(error);
       }
     };
 
-	useEffect(() => {
-		if (checkingIn && !assignDialog) {
-			// setAuthDialog(true)
-			// console.log('here')
-		} else {
 
-		}
-	}, [assignDialog])
 
     const handleCheckOut = async () => {
       try {
@@ -357,10 +377,10 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
               
             </Grid>
 
-            {
-              assignDialog && 
-              <AssignRoom reservation={reservationLocal} setReservationLocal={setReservationLocal} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} setDialog={setAssignDialog}/>
-            }
+            
+              
+              <AssignRoom open={assignDialog} reservation={reservationLocal} setReservationLocal={setReservationLocal} roomList={roomList} getRoomList={getRoomList} roomTypes={roomTypes} setDialog={setAssignDialog} setCheckingIn={setCheckingIn} />
+            
 
 			<Dialog
 				open={ccAuthDialog}
@@ -373,16 +393,23 @@ function ReservationDialog({ reservation_id, roomList, getRoomList, roomTypes } 
 				  }}
 			>
 				<DialogContent>
-				  	<CCAuth reservation={reservationLocal} authorizations={reservationLocal.authorizations} fetchReservationData={fetchReservationData}/>
-				</DialogContent>
+				  	<CCAuth reservation={reservationLocal} authorizations={reservationLocal.authorizations} fetchReservationData={fetchReservationData} amount={grandTotalCalc} />
+				</DialogContent> 
 				<DialogActions>
 					<Grid container justifyContent={'space-between'}>
 					
 						<Grid item px={2}>
 							<Button 
 								variant='outlined'
-								onClick={() => setCCAuthDialog(false)}
+								onClick={() => {setCheckingIn(false); setCCAuthDialog(false);} }
 							>Close</Button>
+						</Grid>
+
+						<Grid item px={2}>
+							<Button 
+								variant='contained'
+								onClick={ completeCheckIn }
+							>Check in</Button>
 						</Grid>
 
 					</Grid>
